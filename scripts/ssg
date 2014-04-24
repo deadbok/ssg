@@ -1,0 +1,19 @@
+#! /usr/bin/env python
+'''
+Main file for Static Site Generator
+'''
+import ssg
+
+
+def main():
+    '''
+    The entry point.
+    '''
+    try:
+        ssg.init(True)
+    finally:
+        ssg.close()
+
+
+if __name__ == '__main__':
+    main()

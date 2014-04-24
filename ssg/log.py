@@ -15,8 +15,8 @@ logger = logging.getLogger("ssg")
 logger.setLevel(logging.DEBUG)
 
 file_log = handlers.RotatingFileHandler("ssg.log",
-                                       maxBytes = 10000000,
-                                       backupCount = 5)
+                                       maxBytes=10000000,
+                                       backupCount=5)
 '''Handler for logging to a file.'''
 
 file_log.setLevel(logging.DEBUG)
@@ -27,12 +27,11 @@ file_log.doRollover()
 console_log = logging.StreamHandler(sys.stdout)
 '''Handler for logging to the console.'''
 
-def init_file_log(level = logging.DEBUG):
-    '''
-    Initialise the file logging.
-    
-    @type level: logging level
-    @param level: The level at which the message is logged to the file.
+def init_file_log(level=logging.DEBUG):
+    '''Initialise the file logging.
+
+    :param level: The level at which the message is logged to the file.
+    :type level: logging level
     '''
     file_log.setLevel(level)
 
@@ -44,7 +43,7 @@ class ConsoleFormatter(logging.Formatter):
     def format(self, record):
         '''
         Format function to emphasise errors.
-        
+
         @type record: LogRecord
         @param record: The log record to format.
         @rtype: str
@@ -58,10 +57,10 @@ class ConsoleFormatter(logging.Formatter):
         return msg
 
 
-def init_console_log(level = logging.INFO):
+def init_console_log(level=logging.INFO):
     '''
     Initialise the console logging.
-    
+
     @type level: logging level
     @param level: The level at which the message is logged to the console.
     '''
