@@ -2,6 +2,7 @@
 '''
 Main file for Static Site Generator
 '''
+import os
 import ssg
 
 
@@ -11,6 +12,8 @@ def main():
     '''
     try:
         ssg.init(True)
+        root = os.getcwd()
+        ssg.process_content(root)
     finally:
         ssg.close()
 
