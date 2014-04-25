@@ -1,8 +1,8 @@
 '''
 Log module.
 
-@since: 22 Aug 2011
-@author: oblivion
+:since: 22 Aug 2011
+:author: oblivion
 '''
 from logging import handlers
 import logging
@@ -44,16 +44,13 @@ class ConsoleFormatter(logging.Formatter):
         '''
         Format function to emphasise errors.
 
-        @type record: LogRecord
-        @param record: The log record to format.
-        @rtype: str
-        @return: The resulting string'''
-        if record.levelno >= logging.ERROR:
-            self._fmt = "%(levelname)s: %(message)s"
-            msg = logging.Formatter.format(self, record)
-        else:
-            self._fmt = "%(message)s"
-            msg = logging.Formatter.format(self, record)
+        :type record: LogRecord
+        :param record: The log record to format.
+        :rtype: str
+        :return: The resulting string'''
+        if record.levelno >= logging.WARNING:
+            logging.Formatter.__init__(self, '%(levelname)s : %(message)s')
+        msg = logging.Formatter.format(self, record)
         return msg
 
 
