@@ -49,7 +49,9 @@ class ConsoleFormatter(logging.Formatter):
         :rtype: str
         :return: The resulting string'''
         if record.levelno >= logging.WARNING:
-            logging.Formatter.__init__(self, '%(levelname)s : %(message)s')
+            logging.Formatter.__init__(self, '%(levelname)s: %(message)s')
+        else:
+            logging.Formatter.__init__(self, '%(message)s')
         msg = logging.Formatter.format(self, record)
         return msg
 
