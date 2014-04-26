@@ -67,8 +67,8 @@ def init_console_log(level=logging.INFO):
     console_log.setFormatter(ConsoleFormatter())
     logger.addHandler(console_log)
 
+
 def close_log():
     '''Close all logs.'''
     console_log.close()
     file_log.close()
-

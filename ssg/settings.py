@@ -12,9 +12,26 @@ DEFAULT_CONFIG = {
     'SITENAME': 'Spam',
     'SITEURL': 'localhost',
     'ROOTDIR': os.getcwd(),
-    'CONTENTDIR': 'content'
+    'CONTENTDIR': 'content',
+    'METAEXTS': list()
 }
-'''Default configuration values.'''
+'''Default configuration values.
+
+SITENAME
+    Name of the site. Default *Spam*
+
+SITEURL
+    URL of the site. Default *localhost*
+
+ROOTDIR
+    Root directory of the ssg files. Default *current working directory*
+
+CONTENTDIR
+    Sub directory of ROOTDIR with site content. Default *content*
+
+METAEXTS
+    List of enabled meta data parsers. Default *empty*
+'''
 
 SETTINGS = DEFAULT_CONFIG
 '''Dictionary for all configuration values.'''
