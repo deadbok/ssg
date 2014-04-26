@@ -23,14 +23,24 @@ class CategoryMetaParser(metadata.MetaParserBase):
         :returns: dict with meta data.
         '''
         logger.debug("Parsing category.")
-        content_path = SETTINGS['ROOTDIR'] + '/' + SETTINGS['CONTENTDIR']
-        path = os.path.relpath(path, content_path)
-        path, _ = os.path.split(path)
-        category = path.split('/')
+        # Get content path
+        content_path = os.path.join(SETTINGS['ROOTDIR'],
+                                    SETTINGS['CONTENTDIR'])
+        # Get the path relative to the contents dir
+        relpath = os.path.relpath(path, content_path)
+        # Isolate the path from the filename
+        relpath, _ = os.path.split(relpath)
+        # Create category for each sub directory
+        category = relpath.split('/')
         logger.debug("Category: " + str(category))
-        metadata = dict()
-        metadata['category'] = category
-        return(metadata)
+        # Create dictionary for the meta data
+        result = dict()
+        # Set category to 'None' if no sub directory
+        if category == '':
+            result['category'] = 'None'
+        else:
+            result['category'] = category
+        return(result)
 
 # Add CategoriMetaParser to list of parsers
 metadata.META_PARSERS.append(CategoryMetaParser())

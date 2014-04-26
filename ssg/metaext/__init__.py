@@ -1,6 +1,9 @@
+'''Registration for the meta data parser extensions.'''
 from ssg.log import logger
 from ssg.metadata import META_PARSERS
 from ssg.settings import SETTINGS
+
+# Import extensions
 import ssg.metaext.categorymetaparser
 
 

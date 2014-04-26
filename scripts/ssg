@@ -13,7 +13,9 @@ def main():
     try:
         ssg.init(True)
         root = os.getcwd()
-        ssg.process_content(root)
+        contents = ssg.process_content(root + '/'
+                                       + ssg.settings.SETTINGS['CONTENTDIR'])
+        ssg.apply_templates(root + '/templates', contents)
     finally:
         ssg.close()
 

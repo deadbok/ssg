@@ -13,6 +13,7 @@ DEFAULT_CONFIG = {
     'SITEURL': 'localhost',
     'ROOTDIR': os.getcwd(),
     'CONTENTDIR': 'content',
+    'OUTPUTDIR': 'output',
     'METAEXTS': list()
 }
 '''Default configuration values.
@@ -28,6 +29,9 @@ ROOTDIR
 
 CONTENTDIR
     Sub directory of ROOTDIR with site content. Default *content*
+
+OUTPUTDIR
+    Sub directory of ROOTDIR where the final site is saved. Default *output*
 
 METAEXTS
     List of enabled meta data parsers. Default *empty*
