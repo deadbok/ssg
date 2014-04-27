@@ -40,25 +40,6 @@ def init(debug=False):
         init_console_log(logging.INFO)
     settings.init()
 
-'''
-Context
-=======
-
-A context is created for each processed file in the content directory. The
-context contains all data about an output file.
-
-Keys in the context
--------------------
-
-metadata
-    The meta data for the context.
-
-content
-    The HTML rendered from the input file.
-
-html
-    The final HTML from the content rendered through a template
-'''
 
 def process_content(path):
     '''Process all contents, converting it to HTML.
@@ -101,6 +82,8 @@ def process_content(path):
             context['metadata'] = metadata
             # Add content
             context['content'] = content
+            # Create settings dictionary
+            context['settings'] = SETTINGS
             # Append the content to the list
             contents.append(context)
     return(contents)

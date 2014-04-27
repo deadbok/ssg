@@ -18,6 +18,9 @@ metadata
 content
     The HTML rendered from the input file.
 
+settings
+   All settings used to generate the site
+
 html
     The final HTML from the content rendered through a template
 

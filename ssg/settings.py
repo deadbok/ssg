@@ -1,28 +1,18 @@
 '''
+Configuration
+=============
 
-@since 23/04/2014
-@author: oblivion
-'''
-import os
-from ssg.log import logger
-from importlib.machinery import SourceFileLoader
+Configuration is done by adding values to the CONFIG dictionary found in the
+file:`config.py` in the root of the site directory.
 
-
-DEFAULT_CONFIG = {
-    'SITENAME': 'Spam',
-    'SITEURL': 'localhost',
-    'ROOTDIR': os.getcwd(),
-    'CONTENTDIR': 'content',
-    'OUTPUTDIR': 'output',
-    'METAEXTS': list()
-}
-'''Default configuration values.
+Default configuration values
+----------------------------
 
 SITENAME
     Name of the site. Default *Spam*
 
 SITEURL
-    URL of the site. Default *localhost*
+    URL of the site. Default *http://localhost/*
 
 ROOTDIR
     Root directory of the ssg files. Default *current working directory*
@@ -36,6 +26,20 @@ OUTPUTDIR
 METAEXTS
     List of enabled meta data parsers. Default *empty*
 '''
+import os
+from ssg.log import logger
+from importlib.machinery import SourceFileLoader
+
+
+DEFAULT_CONFIG = {
+    'SITENAME': 'Spam',
+    'SITEURL': 'http://localhost/',
+    'ROOTDIR': os.getcwd(),
+    'CONTENTDIR': 'content',
+    'OUTPUTDIR': 'output',
+    'METAEXTS': list()
+}
+
 
 SETTINGS = DEFAULT_CONFIG
 '''Dictionary for all configuration values.'''

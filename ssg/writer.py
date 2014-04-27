@@ -1,19 +1,10 @@
 '''
-Everything to do with writing the output files.
-
-:since: 27/04/2014
-:author: oblivion
-'''
-'''
-Writer
-======
-
-The writers takes care of saving files, and creating directories for the static
-site output.
+The writers takes care of creating the final static output.
 
 The process is this.
- - Generate output files
- - Copy all other files in the content directory to the output directory
+ - Generate output files from a list of contexts.
+..autofunction:: file_writer
+ - Copy all other files in the content directory to the output directory.
 '''
 import os
 import shutil

@@ -1,6 +1,19 @@
-'''Meta data parser to extract category data from content directories.
+'''
+CategoryMetaParser
+==================
 
-:since 26/04/2014
+Meta data parser to extract category data from content directories. Each
+directory under the content path, becomes a category. E.g.
+``python/ssg/somefile.md``, creates "somefile" in the category "ssg" under the
+category "python".
+
+Reserved meta data keywords
+---------------------------
+
+category
+    A list of categories.
+
+:since: 26/04/2014
 :author: oblivion
 '''
 import os
