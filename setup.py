@@ -40,7 +40,7 @@ setup(
     packages=find_packages(),
     scripts=['scripts/ssg'],
 
-    install_requires=['jinja2'],
+    install_requires=['jinja2', 'markdown'],
 
     author="Martin Grønholdt",
     author_email="martin.groenholdt@gmail.com",
