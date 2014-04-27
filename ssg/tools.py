@@ -29,7 +29,7 @@ def get_files(path, extension):
             if os.path.isdir(filename):
                 filelist.extend(get_files(filename, extension))
             else:
-                if fnmatch(filename, '*.' + extension):
+                if fnmatch(filename, '*' + extension):
                     logger.debug("Found: " + filename)
                     filelist.append(filename)
     return(filelist)

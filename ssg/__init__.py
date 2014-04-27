@@ -7,11 +7,13 @@ Main routines for the Static Site Generator.
 import logging
 import os
 import markdown
+from ssg import writer
 from jinja2 import Environment, FileSystemLoader
 from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
 from ssg.settings import SETTINGS
+from ssg.tools import get_files
 
 __version__ = '0.0.1'
 
@@ -26,33 +28,6 @@ class ContentParserError(RuntimeError):
     pass
 
 
-def get_content_files(path, extension):
-    '''Get a list of files with extension from path an subdirectories.
-
-    :param path: Path to look for files
-    :type path: string
-    :param extension: extension to look for
-    :type extension: string
-    '''
-    filelist = list()
-
-    logger.debug('Looking in "' + path + '" for files with extension "'
-                 + extension + '"')
-    for entry in os.listdir(path):
-        # Ignore . and ..
-        if not (entry.find('.') == 0):
-            filename = path + "/" + entry
-            # Process subdirectories
-            if os.path.isdir(filename):
-                filelist.extend(get_content_files(filename, extension))
-            else:
-                _, ext = os.path.splitext(filename)
-                if (ext == extension):
-                    logger.debug("Found: " + filename)
-                    filelist.append(filename)
-    return(filelist)
-
-
 def init(debug=False):
     '''Initialise ssg
 
@@ -65,21 +40,40 @@ def init(debug=False):
         init_console_log(logging.INFO)
     settings.init()
 
+'''
+Context
+=======
+
+A context is created for each processed file in the content directory. The
+context contains all data about an output file.
+
+Keys in the context
+-------------------
+
+metadata
+    The meta data for the context.
+
+content
+    The HTML rendered from the input file.
+
+html
+    The final HTML from the content rendered through a template
+'''
 
 def process_content(path):
     '''Process all contents, converting it to HTML.
 
-    **Note: Metadata need to start at the first line of the file, and to have ONE
-           newline before the content.**
+    **Note: Metadata need to start at the first line of the file, and to have
+            ONE newline before the content.**
 
     :param path: Where the content files are at.
     :type path: string
-    :returns: A list of tuples of metadata and content
+    :returns: A list of contexts
     '''
     logger.info("Processing content.")
     contents = list()
     # Get list of files
-    content_files = get_content_files(path, '.md')
+    content_files = get_files(path, '.md')
 
     # Run through the files
     for filename in content_files:
@@ -94,15 +88,21 @@ def process_content(path):
                                    output_format='html5')
             # Convert file to html
             content = md.convert(markdown_file.read())
-            # Check for metadata
+            # Check for meta data
             if len(md.Meta) == 0:
-                raise ContentParserError('No metadata found.')
-            # Add metadata from the metadata markdown extension
+                raise ContentParserError('No meta data found.')
+            # Add meta data from the meta data markdown extension
             metadata.update(md.Meta)
             # Run through extra meta data parsers.
             metadata.update(parsers_run(filename))
-            # Add the content to the list
-            contents.append((metadata, content))
+            # Create context
+            context = dict()
+            # Add meta data
+            context['metadata'] = metadata
+            # Add content
+            context['content'] = content
+            # Append the content to the list
+            contents.append(context)
     return(contents)
 
 
@@ -113,54 +113,43 @@ def apply_templates(path, contents):
     :type path: string
     :param contents: A list of metadata, content tuples
     :type contents: list
+    :returns: List of contexts
     '''
     logger.debug("Applying templates.")
     env = Environment(loader=FileSystemLoader(path))
+    result = list()
     # Run through all content
-    for metadata, content in contents:
+    for context in contents:
         # Use specified template or index.html
-        if 'template' in metadata.keys():
-            template = metadata['template']
+        if 'template' in context['metadata'].keys():
+            template = context['metadata']['template']
         else:
             logger.warning('Using index.html as template.')
             template = 'index.html'
         # Get template
         tpl = env.get_template(template)
-        # Create context
-        context = dict()
-        # Add meta data
-        context['metadata'] = metadata
-        # Add content
-        context['content'] = content
+
         # Render template
         logger.debug('Rendering template "' + template
-                     + '" with "' + metadata['file'] + '"')
-        result = tpl.render(context)
+                     + '" with "' + context['metadata']['file'] + '"')
+        context['html'] = tpl.render(context)
+        # Save content to list
+        result.append(context)
+    return(result)
 
-        # Get path starting from content
-        content_path = os.path.join(SETTINGS['ROOTDIR'],
-                                    SETTINGS['CONTENTDIR'])
-        output_filename = os.path.relpath(metadata['file'], content_path)
-        # Strip old extension
-        output_filename, _ = os.path.splitext(output_filename)
-        # Add new
-        output_filename += '.html'
-        # Make an absolute path
-        output_filename = os.path.join(SETTINGS['ROOTDIR'],
-                                       SETTINGS['OUTPUTDIR'],
-                                       output_filename)
-        # Get the path of the output
-        output_path, _ = os.path.split(output_filename)
-        logger.debug('Saving to path: ' + output_path)
-        # Create directory if it does not exist
-        if not os.path.isdir(output_path):
-            logger.debug('Creating path: ' + output_path)
-            os.makedirs(output_path, mode=0o755)
 
-        with open(output_filename, 'w') as output_file:
-            logger.info('Saving to: ' + output_filename)
-            output_file.write(result)
-        output_file.close()
+def run(root):
+    '''Process everything and create output files.
+
+    :param root: The root of the site files.
+    :type root: string
+    '''
+    # Process the input files
+    contents = process_content(os.path.join(root, SETTINGS['CONTENTDIR']))
+    # Apply the templates
+    contents = apply_templates(os.path.join(root, 'templates'), contents)
+    # Copy and write the output files
+    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), contents)
 
 
 def close():
