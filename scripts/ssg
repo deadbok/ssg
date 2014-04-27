@@ -3,19 +3,29 @@
 Main file for Static Site Generator
 '''
 import os
+import optparse
 import ssg
+from ssg.log import logger
 
 
 def main():
     '''
     The entry point.
     '''
+    # Parse command line
+    usage = "usage: %prog [options]"
+    arg_parser = optparse.OptionParser(usage=usage)
+    arg_parser.add_option("-d", "--debug",
+                          action="store_true", dest="debug",
+                          default=False,
+                          help="Print debug information")
+    (options, args) = arg_parser.parse_args()
+
     try:
-        ssg.init(True)
+        ssg.init(options.debug)
+        logger.info("Static Site Generator V." + ssg.__version__)
         root = os.getcwd()
-        contents = ssg.process_content(root + '/'
-                                       + ssg.settings.SETTINGS['CONTENTDIR'])
-        ssg.apply_templates(root + '/templates', contents)
+        ssg.run(root)
     finally:
         ssg.close()
 

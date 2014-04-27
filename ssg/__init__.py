@@ -82,7 +82,7 @@ def process_content(path):
             # Create a dictionary for metadata
             metadata = dict()
             metadata['file'] = filename
-            logger.debug("Reading markdown from: " + filename)
+            logger.info("Reading: " + filename)
             # Create an instance of the Markdown processor
             md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
                                    output_format='html5')
@@ -115,7 +115,7 @@ def apply_templates(path, contents):
     :type contents: list
     :returns: List of contexts
     '''
-    logger.debug("Applying templates.")
+    logger.info("Applying templates.")
     env = Environment(loader=FileSystemLoader(path))
     result = list()
     # Run through all content
