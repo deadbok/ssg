@@ -13,16 +13,16 @@ from ssg.settings import SETTINGS
 from ssg.tools import get_files
 
 
-def file_writer(context):
+def file_writer(content):
     '''Write a file to the output directory.
 
-    :param context: The context to write.
-    :type context: dict
+    :param content: The content to write.
+    :type content: dict
     '''
         # Get path starting from content
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
-    output_filename = os.path.relpath(context['metadata']['file'],
+    output_filename = os.path.relpath(content['metadata']['file'],
                                       content_path)
     # Strip old extension
     output_filename, _ = os.path.splitext(output_filename)
@@ -42,7 +42,7 @@ def file_writer(context):
 
     with open(output_filename, 'w') as output_file:
         logger.info('Saving to: ' + output_filename)
-        output_file.write(context['html'])
+        output_file.write(content['html'])
     output_file.close()
 
 
@@ -71,13 +71,13 @@ def copy_file(src, dst):
     shutil.copy2(src, output_path)
 
 
-def write(input_path, context_list):
+def write(input_path, context):
     '''Write and copy all output files into place.
 
     :param input_path: Path with input files.
     :type input_path: string
-    :param context_list: List of context to write.
-    :type context_list: list
+    :param context: Context to write.
+    :type context: dict
     '''
     # Create a list of input files
     input_files = get_files(input_path, '.*')
@@ -85,9 +85,9 @@ def write(input_path, context_list):
     content_files = list()
     # Write all content
     logger.info('Saving HTML output.')
-    for context in context_list:
-        file_writer(context)
-        content_files.append(context['metadata']['file'])
+    for content in context['contents']:
+        file_writer(content)
+        content_files.append(content['metadata']['file'])
 
     logger.info('Copying static files.')
     # Get output path

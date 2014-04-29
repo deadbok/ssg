@@ -12,17 +12,20 @@ context contains all data about an output file.
 Keys in the context
 -------------------
 
-metadata
-    The meta data for the context.
-
-content
-    The HTML rendered from the input file.
-
 settings
    All settings used to generate the site
+   
+contents
+   A list of all content.
 
-html
-    The final HTML from the content rendered through a template
+   metadata
+       The meta data for the page.
+   
+   html_content
+       The HTML rendered from the input file.
+   
+   html
+       The final HTML from the content rendered through a template
 
 Writer
 ======

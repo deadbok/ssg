@@ -52,7 +52,12 @@ def process_content(path):
     :returns: A list of contexts
     '''
     logger.info("Processing content.")
-    contents = list()
+    # Create context
+    context = dict()
+    # Add list for pages
+    context['contents'] = list()
+    # Create settings dictionary
+    context['settings'] = SETTINGS
     # Get list of files
     content_files = get_files(path, '.md')
 
@@ -68,7 +73,7 @@ def process_content(path):
             md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
                                    output_format='html5')
             # Convert file to html
-            content = md.convert(markdown_file.read())
+            html_content = md.convert(markdown_file.read())
             # Check for meta data
             if len(md.Meta) == 0:
                 raise ContentParserError('No meta data found.')
@@ -76,20 +81,18 @@ def process_content(path):
             metadata.update(md.Meta)
             # Run through extra meta data parsers.
             metadata.update(parsers_run(filename))
-            # Create context
-            context = dict()
+            # Create content
+            content = dict()
             # Add meta data
-            context['metadata'] = metadata
+            content['metadata'] = metadata
             # Add content
-            context['content'] = content
-            # Create settings dictionary
-            context['settings'] = SETTINGS
+            content['html_content'] = html_content
             # Append the content to the list
-            contents.append(context)
-    return(contents)
+            context['contents'].append(content)
+    return(context)
 
 
-def apply_templates(path, contents):
+def apply_templates(path, context):
     '''Apply jinja2 templates to content, and write the files.
 
     :param path: Path to templates
@@ -100,25 +103,22 @@ def apply_templates(path, contents):
     '''
     logger.info("Applying templates.")
     env = Environment(loader=FileSystemLoader(path))
-    result = list()
     # Run through all content
-    for context in contents:
+    for content in context['contents']:
         # Use specified template or index.html
-        if 'template' in context['metadata'].keys():
-            template = context['metadata']['template']
+        if 'template' in content['metadata'].keys():
+            template = content['metadata']['template'][0] + '.html'
         else:
-            logger.warning('Using index.html as template.')
-            template = 'index.html'
+            logger.warning('Using page.html as template.')
+            template = 'page.html'
         # Get template
         tpl = env.get_template(template)
 
         # Render template
         logger.debug('Rendering template "' + template
-                     + '" with "' + context['metadata']['file'] + '"')
-        context['html'] = tpl.render(context)
-        # Save content to list
-        result.append(context)
-    return(result)
+                     + '" with "' + content['metadata']['file'] + '"')
+        content['html'] = tpl.render({'context': context, 'content': content})
+    return(context)
 
 
 def run(root):
@@ -128,11 +128,11 @@ def run(root):
     :type root: string
     '''
     # Process the input files
-    contents = process_content(os.path.join(root, SETTINGS['CONTENTDIR']))
+    context = process_content(os.path.join(root, SETTINGS['CONTENTDIR']))
     # Apply the templates
-    contents = apply_templates(os.path.join(root, 'templates'), contents)
+    context = apply_templates(os.path.join(root, 'templates'), context)
     # Copy and write the output files
-    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), contents)
+    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), context)
 
 
 def close():
