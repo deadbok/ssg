@@ -14,6 +14,7 @@ from ssg.metaext import parsers_run
 from ssg import settings
 from ssg.settings import SETTINGS
 from ssg.tools import get_files
+from ssg.context import CONTEXT
 
 __version__ = '0.0.1'
 
@@ -41,7 +42,7 @@ def init(debug=False):
     settings.init()
 
 
-def process_content(path):
+def process_content(path, context):
     '''Process all contents, converting it to HTML.
 
     **Note: Metadata need to start at the first line of the file, and to have
@@ -52,12 +53,6 @@ def process_content(path):
     :returns: A list of contexts
     '''
     logger.info("Processing content.")
-    # Create context
-    context = dict()
-    # Add list for pages
-    context['contents'] = list()
-    # Create settings dictionary
-    context['settings'] = SETTINGS
     # Get list of files
     content_files = get_files(path, '.md')
 
@@ -88,7 +83,7 @@ def process_content(path):
             # Add content
             content['html_content'] = html_content
             # Append the content to the list
-            context['contents'].append(content)
+            context.contents.append(content)
     return(context)
 
 
@@ -104,7 +99,7 @@ def apply_templates(path, context):
     logger.info("Applying templates.")
     env = Environment(loader=FileSystemLoader(path))
     # Run through all content
-    for content in context['contents']:
+    for content in context.contents:
         # Use specified template or index.html
         if 'template' in content['metadata'].keys():
             template = content['metadata']['template'][0] + '.html'
@@ -117,7 +112,7 @@ def apply_templates(path, context):
         # Render template
         logger.debug('Rendering template "' + template
                      + '" with "' + content['metadata']['file'] + '"')
-        content['html'] = tpl.render({'context': context, 'content': content})
+        content['html'] = tpl.render(context=context, content=content)
     return(context)
 
 
@@ -127,12 +122,15 @@ def run(root):
     :param root: The root of the site files.
     :type root: string
     '''
+    global CONTEXT
+    # Add settings to global context
+    CONTEXT.settings = SETTINGS
     # Process the input files
-    context = process_content(os.path.join(root, SETTINGS['CONTENTDIR']))
+    CONTEXT = process_content(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
     # Apply the templates
-    context = apply_templates(os.path.join(root, 'templates'), context)
+    CONTEXT = apply_templates(os.path.join(root, 'templates'), CONTEXT)
     # Copy and write the output files
-    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), context)
+    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
 
 
 def close():

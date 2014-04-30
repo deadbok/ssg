@@ -85,7 +85,7 @@ def write(input_path, context):
     content_files = list()
     # Write all content
     logger.info('Saving HTML output.')
-    for content in context['contents']:
+    for content in context.contents:
         file_writer(content)
         content_files.append(content['metadata']['file'])
 
