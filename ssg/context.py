@@ -1,26 +1,28 @@
 '''
-A context is created for each processed file in the content directory. The
-context contains all data about an output file.
+A context is created for the site. The context contain all information about 
+the site.
 
-Keys in the context
+Variables in the context
 -------------------
 
 settings
-   All settings used to generate the site
+   All settings used to generate the site. :ref:`configuration'
 
 contents
    A list of all content.
 
-   metadata
-       The meta data for the page.
 
-   html_content
-       The HTML rendered from the input file.
+Keys in contents
+----------------
 
-   html
-       The final HTML from the content rendered through a template
-@since 30/04/2014
-@author: oblivion
+metadata
+    The meta data for the page.
+
+html_content
+    The HTML rendered from the input file.
+
+html
+    The final HTML from the content rendered through a template
 '''
 class Context(object):
     '''

@@ -1,12 +1,14 @@
+ # -*- coding: utf-8 -*-
 '''
 setup.py for setuptools.
 
 Lifted from the PyPa github repository.
 '''
-from setuptools import setup, find_packages
 import codecs
 import os
 import re
+
+from setuptools import setup, find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))

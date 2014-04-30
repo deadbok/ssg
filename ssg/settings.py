@@ -1,4 +1,6 @@
 '''
+.. configuration:
+
 Configuration
 =============
 
@@ -26,9 +28,10 @@ OUTPUTDIR
 METAEXTS
     List of enabled meta data parsers. Default *empty*
 '''
-import os
-from ssg.log import logger
 from importlib.machinery import SourceFileLoader
+import os
+
+from ssg.log import logger
 
 
 DEFAULT_CONFIG = {
