@@ -9,6 +9,7 @@ fly.
 :since: 06/05/2014
 :author: oblivion
 '''
+from datetime import datetime
 from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
@@ -43,6 +44,7 @@ class BlogIndexGenerator(generator.GeneratorBase):
         metadata = dict()
         metadata['file'] = SETTINGS['CONTENTDIR'] + '/index.html'
         metadata['title'] = 'index'
+        metadata['date'] = datetime.strftime(datetime.now(), SETTINGS['DATEFORMAT'])
         metadata['type'] = 'index'
         # Create a contents node for the index
         content = dict()
