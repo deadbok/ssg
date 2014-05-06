@@ -6,6 +6,7 @@ Main routines for the Static Site Generator.
 
 import logging
 import os
+from datetime import datetime
 import markdown
 from ssg import writer
 from jinja2 import Environment, FileSystemLoader
@@ -43,6 +44,43 @@ def init(debug=False):
     settings.init()
 
 
+def _get_url(metadata):
+    '''Get the final URL of the rendered html on the site.
+
+    :param metadata: Meta data to use. *file* key must be present.
+    :type metadata: dict
+    '''
+    logger.debug('Generating URL from: ' + str(metadata))
+    # Start with the site URL
+    url = SETTINGS['SITEURL'] + '/'
+    # Get path starting from content
+    content_path = os.path.join(SETTINGS['ROOTDIR'],
+                                SETTINGS['CONTENTDIR'])
+    output_filename = os.path.relpath(metadata['file'],
+                                      content_path)
+    # Strip old extension
+    output_filename, _ = os.path.splitext(output_filename)
+    # Add new
+    output_filename += '.html'
+
+    url += output_filename
+    logger.debug('URL: ' + url)
+    return(url)
+
+
+def _get_datetime(datetime_str):
+    '''Get datetime object from a date, time string, formatted according to the
+    TIMEZONE configuration variable.
+
+    :param datatime_str: String containing date and time.
+    :type datatime_str: string
+    '''
+    logger.debug('Generating datetime object from: ' + datetime_str)
+    ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
+    logger.debug('datetime object: ' + str(ret))
+    return(ret)
+
+
 def process_content(path, context):
     '''Process all contents, converting it to HTML.
 
@@ -61,9 +99,11 @@ def process_content(path, context):
     for filename in content_files:
         # Open it
         with open(filename, 'r') as markdown_file:
-            # Create a dictionary for metadata
+            # Create a dictionary for meta data
             metadata = dict()
             metadata['file'] = filename
+            metadata['URL'] = _get_url(metadata)
+
             logger.info("Reading: " + filename)
             # Create an instance of the Markdown processor
             md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
@@ -78,6 +118,9 @@ def process_content(path, context):
                 item = ''.join(item)
                 # Add meta data from the meta data markdown extension
                 metadata[key] = item
+            # Get python datetime from the one in the content meta data
+            if 'date' in metadata.keys():
+                metadata['date'] = _get_datetime(metadata['date'])
             # Run through extra meta data parsers.
             metadata.update(parsers_run(filename))
             # Create content

@@ -11,25 +11,30 @@ Default configuration values
 ----------------------------
 
 SITENAME
-    Name of the site. Default *Spam*
+    Name of the site. Default *Spam*.
 
 SITEURL
-    URL of the site. Default *http://localhost/*
+    URL of the site. Default *http://localhost/*.
 
 ROOTDIR
-    Root directory of the ssg files. Default *current working directory*
+    Root directory of the ssg files. Default *current working directory*.
 
 CONTENTDIR
-    Sub directory of ROOTDIR with site content. Default *content*
+    Sub directory of ROOTDIR with site content. Default *content*.
 
 OUTPUTDIR
-    Sub directory of ROOTDIR where the final site is saved. Default *output*
+    Sub directory of ROOTDIR where the final site is saved. Default *output*.
+
+DATEFORMAT
+    Format string to read the date in the content files. Default
+    *%Y-%m-%d %H:%M*.
+    :ref:`Format string directives <python:strftime-strptime-behavior>`
 
 METAPARSERS
-    List of enabled meta data parsers. Default *empty*
+    List of enabled meta data parsers. Default *empty*.
 
 GENERATORS
-    List of enabled generators. Default *empty*
+    List of enabled generators. Default *empty*.
 '''
 from importlib.machinery import SourceFileLoader
 import os
@@ -43,6 +48,7 @@ DEFAULT_CONFIG = {
     'ROOTDIR': os.getcwd(),
     'CONTENTDIR': 'content',
     'OUTPUTDIR': 'output',
+    'DATEFORMAT': '%Y-%m-%d %H:%M',
     'METAPARSERS': list(),
     'GENERATORS': list()
 }

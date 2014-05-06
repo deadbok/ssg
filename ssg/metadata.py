@@ -15,6 +15,9 @@ template
 type
     Type of the content in the file.
 
+URL
+    The URL of the rendered html page.
+
 
 Meta data extensions
 --------------------
@@ -40,4 +43,3 @@ class MetaParserBase(object):
         :returns: dict with meta data.
         '''
         raise NotImplementedError('Must be implemented in a derived class')
-
