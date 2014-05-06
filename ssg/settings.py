@@ -25,8 +25,11 @@ CONTENTDIR
 OUTPUTDIR
     Sub directory of ROOTDIR where the final site is saved. Default *output*
 
-METAEXTS
+METAPARSERS
     List of enabled meta data parsers. Default *empty*
+
+GENERATORS
+    List of enabled generators. Default *empty*
 '''
 from importlib.machinery import SourceFileLoader
 import os
@@ -40,7 +43,8 @@ DEFAULT_CONFIG = {
     'ROOTDIR': os.getcwd(),
     'CONTENTDIR': 'content',
     'OUTPUTDIR': 'output',
-    'METAEXTS': list()
+    'METAPARSERS': list(),
+    'GENERATORS': list()
 }
 
 

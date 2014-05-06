@@ -15,6 +15,7 @@ from ssg import settings
 from ssg.settings import SETTINGS
 from ssg.tools import get_files
 from ssg.context import CONTEXT
+from ssg import generators
 
 __version__ = '0.0.1'
 
@@ -107,8 +108,8 @@ def apply_templates(path, context):
         if 'template' in content['metadata'].keys():
             template = content['metadata']['template'] + '.html'
         else:
-            logger.warning('Using page.html as template.')
             template = 'page.html'
+        logger.debug('Using "' + template + '" as template.')
         # Get template
         tpl = env.get_template(template)
 
@@ -116,6 +117,8 @@ def apply_templates(path, context):
         logger.debug('Rendering template "' + template
                      + '" with "' + content['metadata']['file'] + '"')
         content['html'] = tpl.render(context=context, content=content)
+        # Run generator extensions
+    generators.run(env, context)
     return(context)
 
 

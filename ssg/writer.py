@@ -18,7 +18,7 @@ def file_writer(content):
     :param content: The content to write.
     :type content: dict
     '''
-        # Get path starting from content
+    # Get path starting from content
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
     output_filename = os.path.relpath(content['metadata']['file'],
@@ -66,7 +66,7 @@ def copy_file(src, dst):
     if not os.path.isdir(output_path):
         logger.debug('Creating path: ' + output_path)
         os.makedirs(output_path, mode=0o755)
-    logger.debug('Copying "' + src + '" to "' + output_path + '"')
+    logger.info('Copying "' + src + '" to "' + output_path + '"')
     shutil.copy2(src, output_path)
 
 
