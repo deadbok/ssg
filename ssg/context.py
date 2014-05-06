@@ -1,12 +1,12 @@
 '''
-A context is created for the site. The context contain all information about 
+A context is created for the site. The context contain all information about
 the site.
 
 Variables in the context
--------------------
+------------------------
 
 settings
-   All settings used to generate the site. :ref:`configuration'
+   All settings used to generate the site. See :ref:`configuration`.
 
 contents
    A list of all content.
@@ -18,7 +18,7 @@ Keys in contents
 metadata
     The meta data for the page.
 
-html_content
+content
     The HTML rendered from the input file.
 
 html

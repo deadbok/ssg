@@ -1,11 +1,11 @@
 '''
-.. configuration:
+.. _configuration:
 
 Configuration
 =============
 
 Configuration is done by adding values to the CONFIG dictionary found in the
-file:`config.py` in the root of the site directory.
+``config.py`` in the root of the site directory.
 
 Default configuration values
 ----------------------------

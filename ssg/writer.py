@@ -3,7 +3,6 @@ The writers takes care of creating the final static output.
 
 The process is this.
  - Generate output files from a list of contexts.
-..autofunction:: file_writer
  - Copy all other files in the content directory to the output directory.
 '''
 import os

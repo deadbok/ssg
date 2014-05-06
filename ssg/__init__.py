@@ -72,8 +72,11 @@ def process_content(path, context):
             # Check for meta data
             if len(md.Meta) == 0:
                 raise ContentParserError('No meta data found.')
-            # Add meta data from the meta data markdown extension
-            metadata.update(md.Meta)
+            # Splice the lines together
+            for key, item in md.Meta.items():
+                item = ''.join(item)
+                # Add meta data from the meta data markdown extension
+                metadata[key] = item
             # Run through extra meta data parsers.
             metadata.update(parsers_run(filename))
             # Create content
@@ -81,7 +84,7 @@ def process_content(path, context):
             # Add meta data
             content['metadata'] = metadata
             # Add content
-            content['html_content'] = html_content
+            content['content'] = html_content
             # Append the content to the list
             context.contents.append(content)
     return(context)
@@ -102,7 +105,7 @@ def apply_templates(path, context):
     for content in context.contents:
         # Use specified template or index.html
         if 'template' in content['metadata'].keys():
-            template = content['metadata']['template'][0] + '.html'
+            template = content['metadata']['template'] + '.html'
         else:
             logger.warning('Using page.html as template.')
             template = 'page.html'
