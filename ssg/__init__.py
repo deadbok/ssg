@@ -18,7 +18,7 @@ from ssg.tools import get_files
 from ssg.context import CONTEXT
 from ssg import generators
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 MARKDOWN_EXTENSIONS = ['extra', 'meta']
 '''Markdown extension to use.'''
