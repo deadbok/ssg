@@ -143,9 +143,12 @@ def apply_templates(path, context):
     :type contents: list
     :returns: List of contexts
     '''
-    logger.info("Applying templates.")
+    logger.info('Applying templates.')
     env = Environment(loader=FileSystemLoader(path))
+    # Run generator extensions
+    generators.run(env, context)
     # Run through all content
+    logger.info('Applying to contents.')
     for content in context.contents:
         # Use specified template or index.html
         if 'template' in content['metadata'].keys():
@@ -160,8 +163,6 @@ def apply_templates(path, context):
         logger.debug('Rendering template "' + template
                      + '" with "' + content['metadata']['file'] + '"')
         content['html'] = tpl.render(context=context, content=content)
-        # Run generator extensions
-    generators.run(env, context)
     return(context)
 
 

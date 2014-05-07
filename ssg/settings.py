@@ -10,6 +10,9 @@ Configuration is done by adding values to the CONFIG dictionary found in the
 Default configuration values
 ----------------------------
 
+AUTHOR
+    Author of the site. Default *Eggs*
+
 SITENAME
     Name of the site. Default *Spam*.
 
@@ -43,6 +46,7 @@ from ssg.log import logger
 
 
 DEFAULT_CONFIG = {
+    'AUTHOR': 'Eggs',
     'SITENAME': 'Spam',
     'SITEURL': 'http://localhost/',
     'ROOTDIR': os.getcwd(),
