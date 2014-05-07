@@ -5,6 +5,8 @@ BlogIndexGenerator
 Generate an ``index.html`` file from a template of the same name. This is
 useful for blogs and pages for indexing articles, creating the index on the
 fly.
+**If content is of type 'post' the 'post.html' template is used**, if no
+template explicitly set in the meta data of the content.
 
 :since: 06/05/2014
 :author: oblivion
