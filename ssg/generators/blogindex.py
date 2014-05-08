@@ -28,8 +28,8 @@ class BlogIndexGenerator(generator.GeneratorBase):
         '''
         generator.GeneratorBase.__init__(self)
 
-    def create_index(self, page=''):
-        '''Create an index(n).html from a context.
+    def _create_index_metadata(self, page=''):
+        '''Create metadata and data structure for the index.
 
         :param page: If the index spans multiply pages, gives page number.
         :type page: string
@@ -56,6 +56,42 @@ class BlogIndexGenerator(generator.GeneratorBase):
         # Add contents to context
         return(content)
 
+    def _create_index(self, context, page, n_pages, posts):
+        '''Create an index(n).html from a context.
+
+        :param context:
+        :type context:
+        :param page: Current page number.
+        :type page: int
+        :param page: Number of index pages.
+        :type n_pages: int
+        :param posts: List of posts in the index.
+        :type posts: list
+        '''
+        logger.debug('Creating new page.')
+        index = self._create_index_metadata(page=page)  # Add local context
+        index['context'] = {'context': context,
+                            'posts': posts,
+                            'content': index}
+        index['metadata']['pages'] = n_pages
+        page += 1
+        context.contents.append(index)
+        return index, page
+
+    def _set_template_post(self, context):
+        '''Apply post template to all content that has type post, if no
+        template is set.
+        '''
+        for content in context.contents:
+        # Check if meta data has 'type'
+            if 'type' in content['metadata'].keys():
+            # Check if type is 'post'
+                if content['metadata']['type'] == 'post':
+                # Check if template is set
+                    if 'template' not in content['metadata'].keys():
+                        # Set template to 'post'
+                        content['metadata']['template'] = 'post'
+
     def run(self, context):
         '''Run the generator.
 
@@ -63,59 +99,70 @@ class BlogIndexGenerator(generator.GeneratorBase):
         :type context: ssg.context.Context
         '''
         logger.debug('Running BlogIndexGenerator extension.')
-        # Apply post template to all content that has type post, if no template
-        # is set.
-        for content in context.contents:
-            # Check if meta data has 'type'
-            if 'type' in content['metadata'].keys():
-                # Check if type is 'post'
-                if content['metadata']['type'] == 'post':
-                    # Check if template is set
-                    if 'template' not in content['metadata'].keys():
-                        # Set template to 'post'
-                        content['metadata']['template'] = 'post'
+        content = self._set_template_post(context)
         # Sort by date
         context.contents = sorted(context.contents,
                                   key=lambda c: c['metadata']['date'],
                                   reverse=True)
+
         # Check if we're supposed to use pagination
         if 'POSTPERINDEX' in SETTINGS.keys():
             logger.debug(str(SETTINGS['POSTPERINDEX']) + ' post per page.')
+            # Get number of pages
+            n_pages = 0
+            for content in context.contents:
+                # Only do posts
+                if 'type' in content['metadata'].keys():
+                    if content['metadata']['type'] == 'post':
+                        n_pages += 1
+            # TODO: Check for rounding error when result is something like x,1-4
+            n_pages = int(n_pages / SETTINGS['POSTPERINDEX'])
+            logger.debug('Index spans ' + str(n_pages) + ' pages.')
             # Keep track of the page number
             page = 1
             # Create a list of posts
             posts = list()
             # Run trough all content
             for content in context.contents:
-                # Split by 'POSTSPERINDEX', and create indices
-                if len(posts) <= SETTINGS['POSTPERINDEX']:
-                    logger.debug('Adding post to page ' + str(page))
-                    posts.append(content)
-                else:
-                    logger.debug('Creating new page.')
-                    index = self.create_index(page=page)
-                    # Add local context
-                    index['context'] = {'context': context,
-                                          'posts': posts,
-                                          'content': index}
-                    page += 1
-                    context.contents.append(index)
-                    # New posts list
-                    posts = list()
+                # Only do posts
+                if 'type' in content['metadata'].keys():
+                    if content['metadata']['type'] == 'post':
+                        # Split by 'POSTSPERINDEX', and create indices
+                        if len(posts) <= SETTINGS['POSTPERINDEX']:
+                            logger.debug('Adding post to page ' + str(page))
+                            posts.append(content)
+                        else:
+                            index, page = self._create_index(context,
+                                                             page,
+                                                             n_pages,
+                                                             posts)
+                            # New posts list
+                            posts = list()
             # Get any remaining posts
             if len(posts) > 0:
-                logger.debug('Last page is ' + str(len(posts)) + 'posts long.')
-                index = self.create_index(page=page)
-                index['context'] = {'context': context,
-                                      'posts': posts,
-                                      'content': index}
+                logger.debug('Last page is ' + str(len(posts))
+                             + 'posts long.')
+                index, page = self._create_index(context,
+                                                 page,
+                                                 n_pages,
+                                                 posts)
                 context.contents.append(index)
         else:
             logger.debug('No pagination.')
-            index = self.create_index()
-            index['context'] = {'context': context,
-                                  'posts': index,
-                                  'content': index}
+            # Create a list of posts
+            posts = list()
+            # Run trough all content
+            for content in context.contents:
+                # Only do posts
+                if 'type' in content['metadata'].keys():
+                    if content['metadata']['type'] == 'post':
+                        logger.debug('Adding post to index page.')
+                        posts.append(content)
+
+            index, page = self._create_index(context,
+                                               page,
+                                               n_pages,
+                                               posts)
             context.contents.append(index)
 
 
