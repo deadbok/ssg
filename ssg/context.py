@@ -23,6 +23,9 @@ content
 
 html
     The final HTML from the content rendered through a template
+
+context
+    Local context used by Jinja2, when rendering the page.
 '''
 class Context(object):
     '''

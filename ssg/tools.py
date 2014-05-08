@@ -6,7 +6,9 @@ Assorted tools used in multiply places.
 '''
 import os
 from fnmatch import fnmatch
+from datetime import datetime
 from ssg.log import logger
+from ssg.settings import SETTINGS
 
 
 def get_files(path, extension):
@@ -33,3 +35,16 @@ def get_files(path, extension):
                     logger.debug("Found: " + filename)
                     filelist.append(filename)
     return(filelist)
+
+
+def get_datetime(datetime_str):
+    '''Get datetime object from a date, time string, formatted according to the
+    DATEFORMAT configuration variable.
+
+    :param datatime_str: String containing date and time.
+    :type datatime_str: string
+    '''
+    logger.debug('Generating datetime object from: ' + datetime_str)
+    ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
+    logger.debug('datetime object: ' + str(ret))
+    return(ret)

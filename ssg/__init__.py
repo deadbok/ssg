@@ -6,7 +6,6 @@ Main routines for the Static Site Generator.
 
 import logging
 import os
-from datetime import datetime
 import markdown
 from ssg import writer
 from jinja2 import Environment, FileSystemLoader
@@ -14,7 +13,7 @@ from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
 from ssg.settings import SETTINGS
-from ssg.tools import get_files
+from ssg.tools import get_files, get_datetime
 from ssg.context import CONTEXT
 from ssg import generators
 
@@ -68,19 +67,6 @@ def _get_url(metadata):
     return(url)
 
 
-def _get_datetime(datetime_str):
-    '''Get datetime object from a date, time string, formatted according to the
-    TIMEZONE configuration variable.
-
-    :param datatime_str: String containing date and time.
-    :type datatime_str: string
-    '''
-    logger.debug('Generating datetime object from: ' + datetime_str)
-    ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
-    logger.debug('datetime object: ' + str(ret))
-    return(ret)
-
-
 def process_content(path, context):
     '''Process all contents, converting it to HTML.
 
@@ -120,7 +106,7 @@ def process_content(path, context):
                 metadata[key] = item
             # Get python datetime from the one in the content meta data
             if 'date' in metadata.keys():
-                metadata['date'] = _get_datetime(metadata['date'])
+                metadata['date'] = get_datetime(metadata['date'])
             # Run through extra meta data parsers.
             metadata.update(parsers_run(filename))
             # Create content
@@ -146,7 +132,7 @@ def apply_templates(path, context):
     logger.info('Applying templates.')
     env = Environment(loader=FileSystemLoader(path))
     # Run generator extensions
-    generators.run(env, context)
+    generators.run(context)
     # Run through all content
     logger.info('Applying to contents.')
     for content in context.contents:
@@ -158,11 +144,15 @@ def apply_templates(path, context):
         logger.debug('Using "' + template + '" as template.')
         # Get template
         tpl = env.get_template(template)
-
+        # Use default context if none is set
+        if 'context' in content.keys():
+            local_context = content['context']
+        else:
+            local_context = {'context': context, 'content': content}
         # Render template
         logger.debug('Rendering template "' + template
                      + '" with "' + content['metadata']['file'] + '"')
-        content['html'] = tpl.render(context=context, content=content)
+        content['html'] = tpl.render(local_context)
     return(context)
 
 

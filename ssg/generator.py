@@ -17,11 +17,9 @@ class GeneratorBase(object):
         '''
         logger.debug('Constructing GeneratorBase.')
 
-    def run(self, env, context):
+    def run(self, context):
         '''Run the generator.
 
-        :param env: Jinja2 environment.
-        :type env: Jinja2 environment
         :param context: The context of the site.
         :type context: ssg.context.Context
         '''
