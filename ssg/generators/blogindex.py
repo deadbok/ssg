@@ -5,12 +5,14 @@ BlogIndexGenerator
 Generate an ``index.html`` file from a template of the same name. This is
 useful for blogs and pages for indexing articles, creating the index on the
 fly.
+Adds a list of post to the Jinja2 context, called "posts".
+Adds keys 'page', and 'pages' to the metadata of the indices.
+Content is sorted by date.
+
+Adds the config key "POSTPERINDEX", to set the number of posts per index page.
+
 **If content is of type 'post' the 'post.html' template is used**, if no
 template explicitly set in the meta data of the content.
-**Content is sorted by date**
-Adds the config key "POSTPERINDEX", to set the number of posts per index page.
-:since: 06/05/2014
-:author: oblivion
 '''
 from datetime import datetime
 from ssg import generator
@@ -38,14 +40,16 @@ class BlogIndexGenerator(generator.GeneratorBase):
         # Create a dictionary for metadata
         metadata = dict()
         # Omit page number from first index file
-        if page == 1:
-            metadata['file'] = SETTINGS['CONTENTDIR'] + '/index.html'
-        else:
-            metadata['file'] = SETTINGS['CONTENTDIR'] + '/index' + str(page) + '.html'
+        metadata['file'] = SETTINGS['CONTENTDIR'] + '/index' + page + '.html'
         metadata['title'] = 'index'
         metadata['date'] = datetime.now()
         metadata['type'] = 'index'
         metadata['template'] = 'index'
+        # Page number
+        if page == '':
+            metadata['page'] = 1
+        else:
+            metadata['page'] = int(page)
         # Create a contents node for the index
         content = dict()
         # Add meta data
@@ -69,14 +73,19 @@ class BlogIndexGenerator(generator.GeneratorBase):
         :type posts: list
         '''
         logger.debug('Creating new page.')
-        index = self._create_index_metadata(page=page)  # Add local context
+        # Special case to create index.html
+        if page == 0:
+            index = self._create_index_metadata()
+        else:
+            index = self._create_index_metadata(page=str(page))
+        # Number of pages
+        index['metadata']['pages'] = n_pages
+        # Add local context
         index['context'] = {'context': context,
                             'posts': posts,
                             'content': index}
-        index['metadata']['pages'] = n_pages
-        page += 1
+
         context.contents.append(index)
-        return index, page
 
     def _set_template_post(self, context):
         '''Apply post template to all content that has type post, if no
@@ -132,21 +141,27 @@ class BlogIndexGenerator(generator.GeneratorBase):
                             logger.debug('Adding post to page ' + str(page))
                             posts.append(content)
                         else:
-                            index, page = self._create_index(context,
-                                                             page,
-                                                             n_pages,
-                                                             posts)
+                            self._create_index(context,
+                                               page,
+                                               n_pages,
+                                               posts)
+                                    # Generate an index.html as well as an index1.html
+                            if page == 1:
+                                self._create_index(context, 0, n_pages, posts)
+                            page += 1
                             # New posts list
                             posts = list()
             # Get any remaining posts
             if len(posts) > 0:
                 logger.debug('Last page is ' + str(len(posts))
                              + 'posts long.')
-                index, page = self._create_index(context,
-                                                 page,
-                                                 n_pages,
-                                                 posts)
-                context.contents.append(index)
+                self._create_index(context,
+                                   page,
+                                   n_pages,
+                                   posts)
+                # Generate an index.html as well as an index1.html
+                if page == 1:
+                    self._create_index(context, 0, n_pages, posts)
         else:
             logger.debug('No pagination.')
             # Create a list of posts
@@ -159,12 +174,12 @@ class BlogIndexGenerator(generator.GeneratorBase):
                         logger.debug('Adding post to index page.')
                         posts.append(content)
 
-            index, page = self._create_index(context,
-                                               page,
-                                               n_pages,
-                                               posts)
-            context.contents.append(index)
-
-
+            self._create_index(context,
+                               page,
+                               n_pages,
+                               posts)
+            # Generate an index.html as well as an index1.html
+            if page == 1:
+                self._create_index(context, 0, n_pages, posts)
 # Add CategoriMetaParser to list of parsers
 generator.GENERATORS.append(BlogIndexGenerator())

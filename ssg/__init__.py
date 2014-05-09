@@ -8,7 +8,7 @@ import logging
 import os
 import markdown
 from ssg import writer
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
 from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
@@ -134,25 +134,32 @@ def apply_templates(path, context):
     # Run generator extensions
     generators.run(context)
     # Run through all content
-    logger.info('Applying to contents.')
-    for content in context.contents:
-        # Use specified template or index.html
-        if 'template' in content['metadata'].keys():
-            template = content['metadata']['template'] + '.html'
-        else:
-            template = 'page.html'
-        logger.debug('Using "' + template + '" as template.')
-        # Get template
-        tpl = env.get_template(template)
-        # Use default context if none is set
-        if 'context' in content.keys():
-            local_context = content['context']
-        else:
-            local_context = {'context': context, 'content': content}
-        # Render template
-        logger.debug('Rendering template "' + template
-                     + '" with "' + content['metadata']['file'] + '"')
-        content['html'] = tpl.render(local_context)
+    try:
+        logger.info('Applying to contents.')
+        for content in context.contents:
+            # Use specified template or index.html
+            if 'template' in content['metadata'].keys():
+                template = content['metadata']['template'] + '.html'
+            else:
+                template = 'page.html'
+            logger.debug('Using "' + template + '" as template.')
+            # Get template
+            tpl = env.get_template(template)
+            # Use default context if none is set
+            if 'context' in content.keys():
+                local_context = content['context']
+            else:
+                local_context = {'context': context, 'content': content}
+            # Render template
+            logger.debug('Rendering template "' + template
+                         + '" with "' + content['metadata']['file'] + '"')
+            content['html'] = tpl.render(local_context)
+    except TemplateSyntaxError as exception:
+        logger.error('Jinja2 syntax error:')
+        logger.error(exception.message)
+        logger.error('In ' + exception.name + ' line number :' + str(exception.lineno))
+        logger.error(exception.filename)
+        exit(1)
     return(context)
 
 
