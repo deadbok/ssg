@@ -13,6 +13,15 @@ Meta data
 .. automodule:: ssg.metaext.categorymetaparser
 
 
+Content filters
+===============
+
+.. automodule:: ssg.contentfilter
+
+.. autoclass:: ssg.contentfilter.ContentFilterBase
+
+.. automodule:: ssg.contentfilter.localurl
+
 Context
 =======
 

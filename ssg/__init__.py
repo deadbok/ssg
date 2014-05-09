@@ -16,6 +16,7 @@ from ssg.settings import SETTINGS
 from ssg.tools import get_files, get_datetime
 from ssg.context import CONTEXT
 from ssg import generators
+from ssg import contentfilters
 
 __version__ = '0.0.2'
 
@@ -83,40 +84,47 @@ def process_content(path, context):
 
     # Run through the files
     for filename in content_files:
-        # Open it
-        with open(filename, 'r') as markdown_file:
-            # Create a dictionary for meta data
-            metadata = dict()
-            metadata['file'] = filename
-            metadata['URL'] = _get_url(metadata)
+        try:
+            # Open it
+            with open(filename, 'r') as markdown_file:
+                # Create a dictionary for meta data
+                metadata = dict()
+                metadata['file'] = filename
+                metadata['URL'] = _get_url(metadata)
 
-            logger.info("Reading: " + filename)
-            # Create an instance of the Markdown processor
-            md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
-                                   output_format='html5')
-            # Convert file to html
-            html_content = md.convert(markdown_file.read())
-            # Check for meta data
-            if len(md.Meta) == 0:
-                raise ContentParserError('No meta data found.')
-            # Splice the lines together
-            for key, item in md.Meta.items():
-                item = ''.join(item)
-                # Add meta data from the meta data markdown extension
-                metadata[key] = item
-            # Get python datetime from the one in the content meta data
-            if 'date' in metadata.keys():
-                metadata['date'] = get_datetime(metadata['date'])
-            # Run through extra meta data parsers.
-            metadata.update(parsers_run(filename))
-            # Create content
-            content = dict()
-            # Add meta data
-            content['metadata'] = metadata
-            # Add content
-            content['content'] = html_content
-            # Append the content to the list
-            context.contents.append(content)
+                logger.info("Reading: " + filename)
+                # Create an instance of the Markdown processor
+                md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
+                                       output_format='html5')
+                # Convert file to html
+                html_content = md.convert(markdown_file.read())
+                # Check for meta data
+                if len(md.Meta) == 0:
+                    raise ContentParserError('No meta data found.')
+                # Splice the lines together
+                for key, item in md.Meta.items():
+                    item = ''.join(item)
+                    # Add meta data from the meta data markdown extension
+                    metadata[key] = item
+                # Get python datetime from the one in the content meta data
+                if 'date' in metadata.keys():
+                    metadata['date'] = get_datetime(metadata['date'])
+                # Run through extra meta data parsers.
+                metadata.update(parsers_run(filename))
+                # Create content
+                content = dict()
+                # Add meta data
+                content['metadata'] = metadata
+                # Add content
+                content['content'] = html_content
+                # Run content filters on content
+                contentfilters.run(content)
+                # Append the content to the list
+                context.contents.append(content)
+        except Exception as exception:
+            logger.exception('Exception reading file: ' + filename)
+            if hasattr(exception, 'message'):
+                logger.exception(exception.message)
     return(context)
 
 

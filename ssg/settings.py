@@ -38,6 +38,9 @@ METAPARSERS
 
 GENERATORS
     List of enabled generators. Default *empty*.
+
+CONTENTFILTERS
+    List of enabled content filters. Default *empty*.
 '''
 from importlib.machinery import SourceFileLoader
 import os
