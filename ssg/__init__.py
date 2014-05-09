@@ -17,10 +17,16 @@ from ssg.tools import get_files, get_datetime
 from ssg.context import CONTEXT
 from ssg import generators
 from ssg import contentfilters
+# Markdown extensions
+from ssg.markdownext.figure import FigureExtension
+
 
 __version__ = '0.0.2'
+configs = {}
+# Instantiate Markdown extensions
+figure = FigureExtension(configs=configs)
 
-MARKDOWN_EXTENSIONS = ['extra', 'meta']
+MARKDOWN_EXTENSIONS = ['extra', 'meta', figure]
 '''Markdown extension to use.'''
 
 

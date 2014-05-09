@@ -20,7 +20,7 @@ Content filters
 
 .. autoclass:: ssg.contentfilter.ContentFilterBase
 
-.. automodule:: ssg.contentfilter.localurl
+.. automodule:: ssg.contentfilters.localurl
 
 Context
 =======
