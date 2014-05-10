@@ -26,6 +26,7 @@ FIGURE_RE = r'\!{([\w\d_\s-]+)}\(([$/\.\w\d_-]+)\)'
 
 
 class FigureExtension(Extension):
+    '''Class to register the figure extension.'''
     def extendMarkdown(self, md, md_globals):
         # append to end of inline patterns
         logger.debug('Adding figure Markdown extension.')
@@ -41,7 +42,7 @@ class FigurePattern(LinkPattern):
         # Create a div styled into hell
         # TODO: Make classes configurable
         div = etree.Element('div',
-                            {'class': 'w-300px img-responsive figure align-center'})
+                            {'class': 'imgwidth figure'})
         # Crete the image
         # TODO: Make classes configurable
         img = etree.SubElement(div, 'img', {'class': 'img-responsive'})
@@ -63,5 +64,5 @@ class FigurePattern(LinkPattern):
         return div
 
 
-def makeExtension(configs=None) :
+def makeExtension(configs=None):
     return FigureExtension(configs=configs)

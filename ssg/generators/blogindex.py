@@ -138,19 +138,26 @@ class BlogIndexGenerator(generator.GeneratorBase):
                     if content['metadata']['type'] == 'post':
                         # Split by 'POSTSPERINDEX', and create indices
                         if len(posts) <= SETTINGS['POSTPERINDEX']:
-                            logger.debug('Adding post to page ' + str(page))
+                            logger.debug('Adding post to page '
+                                         + str(page)
+                                         + ' '
+                                         + content['metadata']['title'])
                             posts.append(content)
                         else:
                             self._create_index(context,
                                                page,
                                                n_pages,
                                                posts)
-                                    # Generate an index.html as well as an index1.html
+                            # Generate an index.html as well as an index1.html
                             if page == 1:
                                 self._create_index(context, 0, n_pages, posts)
                             page += 1
                             # New posts list
                             posts = list()
+                            posts.append(content)
+                else:
+                    logger.debug('Skipping '
+                                 + content['metadata']['file'])
             # Get any remaining posts
             if len(posts) > 0:
                 logger.debug('Last page is ' + str(len(posts))
