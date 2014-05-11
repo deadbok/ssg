@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+
+.strike {
+  	text-decoration: line-through;
+}
+
+div.figure {
+	float: right;
+  	border-style:solid;
+  	border-width:thin;
+  	margin-top: 0.5em;
+  	margin-bottom: 0.5em;
+  	margin-left: 1em;
+  	padding-top: 0.5em;
+  	padding-right: 0.5em;
+  	padding-left: 0.5em;
+}
+
+p.caption {
+  	text-align: center;	
+  	font-style: italic;
+  	font-size: smaller;
+}
+
+pre.literal-block {
+	margin: 0;
+}
+
+table.center {
+    margin-left:auto; 
+    margin-right:auto;
+}
+
+a {
+	text-decoration: underline;
+}
+
+.nodeco {
+	text-decoration: none;
+}

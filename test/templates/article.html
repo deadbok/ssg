@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block indextitle %}{% endblock %}
+{% block content %}
+<div class='article'>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h1 class="panel-title">
+				<a href="{{ SITEURL }}/{{ article.url }}"">{{ article.title }}</a>
+			</h1>
+		</div>
+		<div class="panel-body">
+			{{ article.content }}			
+		</div>
+		<div class="panel-footer small">
+			{% include "metadata.html" %}
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block contents %}
+<div class="panel panel-default">
+	<div class="panel-heading">
+	<a href="{{ content.metadata.URL }}">
+	<h1 class="panel-title">{{ content.metadata.title }}</h1>
+	</a>
+	</div>
+	<div class="panel-body">
+	{{ content.content }}
+	</div>
+	<div class="panel-footer">
+	<strong>Author: </strong>
+	{% if content.metadata.author %} 
+		{{ content.metadata.author }}
+	{% endif %}
+	<br/>
+	<strong>Date: </strong>
+	{% if content.metadata.date %} 
+		{{ content.metadata.date }}
+	{% endif %}
+	<br/>
+	<strong>Tags: </strong>
+	{% if content.metadata.tags %} 
+		{{ content.metadata.tags }}
+	{% endif %}
+	</div>	
+</div>
+{% endblock %}

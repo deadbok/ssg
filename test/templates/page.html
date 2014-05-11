@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block contents %}
+<div class="panel panel-default">
+	<div class="panel-heading">
+	<h1 class="panel-title">{{ content.metadata.title }}</h1>
+	</div>
+	<div class="panel-body">
+	{{ content.content }}
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block contents %}
+{# Run trhough all posts sorted by date ...|sort(attribute='metadata.date', reverse=True)#}
+{% for post in posts %}
+	{% if post.metadata.type == 'post' %} 
+<div class="panel panel-default">
+	<div class="panel-heading">
+	<a href="{{ post.metadata.URL }}">
+	<h2 class="panel-title">{{ post.metadata.title }}</h2>
+	</a>
+	</div>
+	<div class="panel-body">
+	{{ post.content }}
+	</div>
+	<div class="panel-footer">
+	<strong>Author: </strong>
+	{% if post.metadata.author %} 
+		{{ post.metadata.author }}
+	{% endif %}
+	<br/>
+	<strong>Date: </strong>
+	{% if post.metadata.date %} 
+		{{ post.metadata.date }}
+	{% endif %}
+	<br/>
+	<strong>Tags: </strong>
+	{% if post.metadata.tags %} 
+		{{ post.metadata.tags }}
+	{% endif %}
+	</div>	
+</div>
+	{% endif %}
+{% endfor %}
+<ul class="pagination">
+	{% if content.metadata.page > 1 %}
+    	<li><a href="{{ context['settings']['SITEURL'] }}/index{{ content.metadata.page - 1 }}.html">&laquo;</a></li>
+    {% endif %}
+	{% for page in range(1, content.metadata.pages + 1) %}
+    	<li {% if content.metadata.page == page %} class="active"{% endif %}><a href="{{ context['settings']['SITEURL'] }}/index{{ page }}.html">{{ page }}</a></li>
+    {% endfor %}
+    {% if content.metadata.page < content.metadata.pages %}
+    	<li><a href="{{ context['settings']['SITEURL'] }}/index{{ content.metadata.page + 1 }}.html">&raquo;</a></li>
+    {% endif %}
+</ul>
+<p class="text-muted small">Generated on {{ content.metadata['date']  }}</p>
+{% endblock %}
