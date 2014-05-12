@@ -1,9 +1,4 @@
 '''
-.. _configuration:
-
-Configuration
-=============
-
 Configuration is done by adding values to the CONFIG dictionary found in the
 ``config.py`` in the root of the site directory.
 

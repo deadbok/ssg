@@ -53,7 +53,7 @@ def copy_file(src, dst):
     '''Copy a file, and create any target directories needed.
 
     :param src: The source file.
-    :type src: String
+    :type src: string
     :param dst: The destination path.
     :type dst: string
     :return: Filename of the destination.
