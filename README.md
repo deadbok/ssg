@@ -16,7 +16,7 @@ There is more to it though. After converting the `Markdown`_ into HTML, the whol
 thing is processed by the `Jinja2`_ template engine.
 A lot can be done solely in the `Jinja2`_ templates, but some steps in the
 conversion can be hooked into, by extending ssg. I test ssg
-on my blog, the blogging engine is made by extensions to ssg, and `Jinja2`_
+on my blog, the engine is made by extensions to ssg, and `Jinja2`_
 templates.
 
 .. _Markdown: http://daringfireball.net/projects/markdown
