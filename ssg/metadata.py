@@ -21,12 +21,12 @@ URL
 
 Meta data extensions
 --------------------
-Meta data extensions extract meta data from the name of the file, the content of
-the file, or some other useful data. Meta data extensions all inherit
+Meta data extensions extract meta data from the name of the file, the content
+of the file, or some other useful data. Meta data extensions all inherit
 *MetaParserBase*.
 '''
+# List of active meta data parsers.
 META_PARSERS = list()
-'''List of active meta data parsers.'''
 
 
 class MetaParserBase(object):

@@ -46,7 +46,7 @@ def file_writer(content):
         logger.info('Saving to: ' + output_filename)
         output_file.write(content['html'])
     output_file.close()
-    return(output_filename)
+    return output_filename
 
 
 def copy_file(src, dst):
@@ -73,7 +73,7 @@ def copy_file(src, dst):
         logger.debug('Creating path: ' + output_path)
         os.makedirs(output_path, mode=0o755)
     logger.info('Copying "' + src + '" to "' + output_path + '"')
-    return(shutil.copy2(src, output_path))
+    return shutil.copy2(src, output_path)
 
 
 def cleanup_destination(output_path, written_files):
@@ -156,8 +156,8 @@ def write(input_path, context):
     for filename in input_files:
         # Only copy html sources if configured
         _, ext = os.path.splitext(filename)
-        if (ext.lower() == '.md'):
-            if (SETTINGS['COPYSOURCES']):
+        if ext.lower() == '.md':
+            if SETTINGS['COPYSOURCES']:
                 written_files.append(copy_file(filename, output_path))
             else:
                 logger.debug('Skipping: ' + filename)

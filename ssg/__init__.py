@@ -1,7 +1,5 @@
 '''
 Main routines for the Static Site Generator.
-
-:author: deadbok
 '''
 
 import logging
@@ -71,14 +69,14 @@ def _get_url(metadata):
 
     url += output_filename
     logger.debug('URL: ' + url)
-    return(url)
+    return url
 
 
 def process_content(path, context):
     '''Process all contents, converting it to HTML.
 
-    **Note: Metadata need to start at the first line of the file, and to have
-            ONE newline before the content.**
+    *Metadata need to start at the first line of the file, and to have ONE
+    newline before the content.*
 
     :param path: Where the content files are at.
     :type path: string

@@ -60,9 +60,8 @@ DEFAULT_CONFIG = {
     'CONTENTFILTERS': list()
 }
 
-
+# Dictionary for all configuration values.
 SETTINGS = DEFAULT_CONFIG
-'''Dictionary for all configuration values.'''
 
 
 def init():
@@ -75,6 +74,5 @@ def init():
                                   '/config.py').load_module()
         # Update settings with values from config.py
         SETTINGS.update(config.CONFIG)
-    except FileNotFoundError as exception:
+    except FileNotFoundError:
         logger.warning("No config.py found, using default values.")
-
