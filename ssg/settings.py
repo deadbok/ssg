@@ -33,6 +33,9 @@ DATEFORMAT
     *%Y-%m-%d %H:%M*.
     :ref:`Format string directives <python:strftime-strptime-behavior>`
 
+COPYSOURCES
+    Copy source *.md files to output dirtectory. Default *True*
+
 METAPARSERS
     List of enabled meta data parsers. Default *empty*.
 
@@ -56,8 +59,10 @@ DEFAULT_CONFIG = {
     'CONTENTDIR': 'content',
     'OUTPUTDIR': 'output',
     'DATEFORMAT': '%Y-%m-%d %H:%M',
+    'COPYSOURCES': True,
     'METAPARSERS': list(),
-    'GENERATORS': list()
+    'GENERATORS': list(),
+    'CONTENTFILTERS': list()
 }
 
 
