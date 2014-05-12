@@ -12,7 +12,7 @@ Renders as::
 
     div class="w-300px img-responsive figure align-center">
         <img alt="Some Captiont" class="img-responsive" src="image.jpg">
-        <a href="image.jpg">Some Caption</a>
+        <a class="figure-caption" href="image.jpg">Some Caption</a>
     </div>
 '''
 from __future__ import absolute_import
@@ -39,7 +39,7 @@ class FigurePattern(LinkPattern):
     '''Figure extension for Markdown.'''
     def handleMatch(self, m):
         logger.debug('Found figure: ' + m.group(2))
-        # Create a div styled into hell
+        # Create a div for the whole thing.
         # TODO: Make classes configurable
         div = etree.Element('div',
                             {'class': 'imgwidth figure'})
@@ -61,6 +61,8 @@ class FigurePattern(LinkPattern):
         link = etree.SubElement(div, 'a')
         link.text = m.group(2)
         link.set('href', self.sanitize_url(self.unescape(src)))
+        # Set class
+        link.set('class', 'figure-caption')
         return div
 
 
