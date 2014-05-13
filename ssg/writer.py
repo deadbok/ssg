@@ -13,6 +13,53 @@ from ssg.settings import SETTINGS
 from ssg.tools import get_files, get_dirs, die
 
 
+def _check_updated(context):
+    '''
+    Check which files need updating.
+
+    :param context: Site context.
+    :type context: ssg.context.Context
+    '''
+    logger.debug('Checking which files need updating.')
+    # No updated content
+    content_upd = False
+    # No updated templates
+    templates_upd = False
+    # Get changed content
+    # Run through all content.
+    for content in context.contents:
+        # If file has a source it is not generated.
+        if not content['metadata']['src_file'] == '':
+            logger.debug('Checking: ' + content['metadata']['src_file'])
+            # Get modification time of source and destination.
+            src_mtime = os.stat(content['metadata']['src_file']).st_mtime
+            if os.path.isfile(content['metadata']['dst_file']):
+                dst_mtime = os.stat(content['metadata']['dst_file']).st_mtime
+            else:
+                dst_mtime = 0
+            logger.debug('Source mtime: ' + str(src_mtime))
+            logger.debug('Destination mtime: ' + str(dst_mtime))
+            # Check if source is newer that destination
+            if src_mtime > dst_mtime:
+                logger.debug('Destination needs updating.')
+                # Content updated
+                content_upd = True
+                content['metadata']['updated'] = True
+            else:
+                content['metadata']['updated'] = False
+    # If content is updated write generated pages.
+    # Run through all content.
+    for content in context.contents:
+        # If file has no source it is generated
+        if content['metadata']['src_file'] == '':
+            if content_upd:
+                logger.debug('"' + content['metadata']['title']
+                             + '" needs updating.')
+                content['metadata']['updated'] = True
+            else:
+                content['metadata']['updated'] = False
+
+
 def file_writer(content):
     '''Write a file to the output directory.
 
@@ -137,10 +184,17 @@ def write(input_path, context):
     input_files = get_files(input_path, '.*')
     # Create a list of written files
     written_files = list()
+    # Check which needs an update.
+    _check_updated(context)
     # Write all content
     logger.info('Saving HTML output.')
     for content in context.contents:
-        written_files.append(file_writer(content).strip())
+        # Check if file need to be writte.
+        if content['metadata']['updated']:
+            written_files.append(file_writer(content).strip())
+        else:
+            # Add to list to prevent deletion
+            written_files.append(content['metadata']['dst_file'])
 
     logger.info('Copying static files.')
     # Get output path
