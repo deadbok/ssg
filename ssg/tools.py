@@ -73,3 +73,9 @@ def get_datetime(datetime_str):
     ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
     logger.debug('datetime object: ' + str(ret))
     return(ret)
+
+
+def die():
+    '''Kill it. Kill it with fire!'''
+    logger.error('Dying...')
+    exit(1)

@@ -10,7 +10,7 @@ import os
 import shutil
 from ssg.log import logger
 from ssg.settings import SETTINGS
-from ssg.tools import get_files, get_dirs
+from ssg.tools import get_files, get_dirs, die
 
 
 def file_writer(content):
@@ -21,19 +21,13 @@ def file_writer(content):
     :return: Filename of the written file.
     :rtype: string
     '''
-    # Get path starting from content
-    content_path = os.path.join(SETTINGS['ROOTDIR'],
-                                SETTINGS['CONTENTDIR'])
-    output_filename = os.path.relpath(content['metadata']['file'],
-                                      content_path)
-    # Strip old extension
-    output_filename, _ = os.path.splitext(output_filename)
-    # Add new
-    output_filename += '.html'
-    # Make an absolute path
-    output_filename = os.path.join(SETTINGS['ROOTDIR'],
-                                   SETTINGS['OUTPUTDIR'],
-                                   output_filename)
+    # Generate ouput file name if none is set
+    if content['metadata']['dst_file'] == '':
+        logger.error('No destination file name for: '
+                     + content['metadata']['title'])
+        die()
+    else:
+        output_filename = content['metadata']['dst_file']
     # Get the path of the output
     output_path, _ = os.path.split(output_filename)
     logger.debug('Saving to path: ' + output_path)
@@ -105,7 +99,6 @@ def cleanup_destination(output_path, written_files):
     for filename in delete_list:
         logger.info('Deleting file: ' + filename)
         os.remove(filename)
-
     # Move on to cleaning up any deleted directories.
     # Get directories in output output_dir.
     dst_dirs = get_dirs(output_path + '/')

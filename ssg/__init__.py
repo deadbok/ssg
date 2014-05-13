@@ -11,7 +11,7 @@ from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
 from ssg.settings import SETTINGS
-from ssg.tools import get_files, get_datetime
+from ssg.tools import get_files, get_datetime, die
 from ssg.context import CONTEXT
 from ssg import generators
 from ssg import contentfilters
@@ -60,7 +60,7 @@ def _get_url(metadata):
     # Get path starting from content
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
-    output_filename = os.path.relpath(metadata['file'],
+    output_filename = os.path.relpath(metadata['src_file'],
                                       content_path)
     # Strip old extension
     output_filename, _ = os.path.splitext(output_filename)
@@ -70,6 +70,52 @@ def _get_url(metadata):
     url += output_filename
     logger.debug('URL: ' + url)
     return url
+
+
+def _new_metadata(filename, md):
+    '''
+    Create new meta data from a Markdown file.
+
+    :param filename: The full path of the source Markdown file.
+    :type filename: string
+    :param md: An instance of the Markdown preprocessor
+    :type md: markdown.Markdown
+    '''
+
+    # Create a dictionary for meta data
+    metadata = dict()
+    metadata['src_file'] = filename
+    # Create output file path and name
+        # Get path starting from content
+    content_path = os.path.join(SETTINGS['ROOTDIR'],
+                                SETTINGS['CONTENTDIR'])
+    output_filename = os.path.relpath(metadata['src_file'],
+                                      content_path)
+    # Strip old extension
+    output_filename, _ = os.path.splitext(output_filename)
+    # Add new
+    output_filename += '.html'
+    # Make an absolute path
+    output_filename = os.path.join(SETTINGS['ROOTDIR'],
+                                   SETTINGS['OUTPUTDIR'],
+                                   output_filename)
+    # Save output file name
+    metadata['dst_file'] = output_filename
+    metadata['URL'] = _get_url(metadata)
+    # Check for meta data
+    if len(md.Meta) == 0:
+        raise ContentParserError('No meta data found.')
+    # Splice the lines together
+    for key, item in md.Meta.items():
+        item = ''.join(item)
+        # Add meta data from the meta data markdown extension
+        metadata[key] = item
+    # Get python datetime from the one in the content meta data
+    if 'date' in metadata.keys():
+        metadata['date'] = get_datetime(metadata['date'])
+    # Run through extra meta data parsers.
+    metadata.update(parsers_run(filename))
+    return metadata
 
 
 def process_content(path, context):
@@ -91,10 +137,7 @@ def process_content(path, context):
         try:
             # Open it
             with open(filename, 'r') as markdown_file:
-                # Create a dictionary for meta data
-                metadata = dict()
-                metadata['file'] = filename
-                metadata['URL'] = _get_url(metadata)
+
 
                 logger.info("Reading: " + filename)
                 # Create an instance of the Markdown processor
@@ -102,19 +145,8 @@ def process_content(path, context):
                                        output_format='html5')
                 # Convert file to html
                 html_content = md.convert(markdown_file.read())
-                # Check for meta data
-                if len(md.Meta) == 0:
-                    raise ContentParserError('No meta data found.')
-                # Splice the lines together
-                for key, item in md.Meta.items():
-                    item = ''.join(item)
-                    # Add meta data from the meta data markdown extension
-                    metadata[key] = item
-                # Get python datetime from the one in the content meta data
-                if 'date' in metadata.keys():
-                    metadata['date'] = get_datetime(metadata['date'])
-                # Run through extra meta data parsers.
-                metadata.update(parsers_run(filename))
+                # Create meta data
+                metadata = _new_metadata(filename, md)
                 # Create content
                 content = dict()
                 # Add meta data
@@ -129,6 +161,7 @@ def process_content(path, context):
             logger.exception('Exception reading file: ' + filename)
             if hasattr(exception, 'message'):
                 logger.exception(exception.message)
+            die()
     return(context)
 
 
@@ -164,7 +197,7 @@ def apply_templates(path, context):
                 local_context = {'context': context, 'content': content}
             # Render template
             logger.debug('Rendering template "' + template
-                         + '" with "' + content['metadata']['file'] + '"')
+                         + '" with "' + content['metadata']['src_file'] + '"')
             content['html'] = tpl.render(local_context)
     except TemplateSyntaxError as exception:
         logger.error('Jinja2 syntax error:')

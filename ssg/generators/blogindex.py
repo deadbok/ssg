@@ -14,6 +14,7 @@ Adds the config key "POSTPERINDEX", to set the number of posts per index page.
 **If content is of type 'post' the 'post.html' template is used**, if no
 template explicitly set in the meta data of the content.
 '''
+import os
 from datetime import datetime
 from ssg import generator
 from ssg.log import logger
@@ -40,7 +41,10 @@ class BlogIndexGenerator(generator.GeneratorBase):
         # Create a dictionary for metadata
         metadata = dict()
         # Omit page number from first index file
-        metadata['file'] = SETTINGS['CONTENTDIR'] + '/index' + page + '.html'
+        metadata['src_file'] = ''
+        metadata['dst_file'] = os.path.join(SETTINGS['ROOTDIR'],
+                                            SETTINGS['OUTPUTDIR'])
+        metadata['dst_file'] += '/index' + page + '.html'
         metadata['title'] = 'index'
         metadata['date'] = datetime.now()
         metadata['type'] = 'index'
@@ -157,7 +161,7 @@ class BlogIndexGenerator(generator.GeneratorBase):
                             posts.append(content)
                 else:
                     logger.debug('Skipping '
-                                 + content['metadata']['file'])
+                                 + content['metadata']['src_file'])
             # Get any remaining posts
             if len(posts) > 0:
                 logger.debug('Last page is ' + str(len(posts))
