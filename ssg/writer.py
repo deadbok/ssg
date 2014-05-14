@@ -21,10 +21,18 @@ def _check_updated(context):
     :type context: ssg.context.Context
     '''
     logger.debug('Checking which files need updating.')
-    # No updated content
+    # ASsume nothin' needs to be updated
     content_upd = False
-    # No updated templates
-    templates_upd = False
+    # Get template modification times
+    template_files = get_files(os.path.join(SETTINGS['ROOTDIR'],
+                                            SETTINGS['TEMPLATEDIR']),
+                               '.html')
+    newest_template = 0
+    for fullpath in template_files:
+        mtime = os.stat(fullpath).st_mtime
+        if newest_template < mtime:
+            newest_template = mtime
+    # Update all content older than the newest template
     # Get changed content
     # Run through all content.
     for content in context.contents:
@@ -36,9 +44,17 @@ def _check_updated(context):
             if os.path.isfile(content['metadata']['dst_file']):
                 dst_mtime = os.stat(content['metadata']['dst_file']).st_mtime
             else:
+                # Make sure the target is updated if it does not exist
                 dst_mtime = 0
             logger.debug('Source mtime: ' + str(src_mtime))
             logger.debug('Destination mtime: ' + str(dst_mtime))
+            logger.debug('Newest template mtime: ' + str(newest_template))
+            # Check if destination is older than newest template
+            if dst_mtime < newest_template:
+                logger.debug('Destination needs updating.')
+                # Content updated
+                content_upd = True
+                content['metadata']['updated'] = True
             # Check if source is newer that destination
             if src_mtime > dst_mtime:
                 logger.debug('Destination needs updating.')
@@ -46,7 +62,9 @@ def _check_updated(context):
                 content_upd = True
                 content['metadata']['updated'] = True
             else:
-                content['metadata']['updated'] = False
+                if 'updated' not in content['metadata'].keys():
+                    content['metadata']['updated'] = False
+            # Check if template is newer than
     # If content is updated write generated pages.
     # Run through all content.
     for content in context.contents:
@@ -91,7 +109,8 @@ def file_writer(content):
 
 
 def copy_file(src, dst):
-    '''Copy a file, and create any target directories needed.
+    '''Copy a file, and create any target directories needed. `copy_file`
+    checks is the destination needs updating.
 
     :param src: The source file.
     :type src: string
@@ -100,21 +119,35 @@ def copy_file(src, dst):
     :return: Filename of the destination.
     :rtype: string
     '''
+    # Get source file modification time
+    src_mtime = os.stat(src).st_mtime
     # Get content path
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
     # Get the path relative to the contents dir
     relpath = os.path.relpath(src, content_path)
-    # Isolate the path from the filename
-    output_path, _ = os.path.split(relpath)
-    # Add destination path
-    output_path = os.path.join(dst, output_path)
-    # Create directory if it does not exist
-    if not os.path.isdir(output_path):
-        logger.debug('Creating path: ' + output_path)
-        os.makedirs(output_path, mode=0o755)
-    logger.info('Copying "' + src + '" to "' + output_path + '"')
-    return shutil.copy2(src, output_path)
+    # Isolate the path from the file name
+    relpath, _ = os.path.split(relpath)
+    output_file = os.path.join(dst, relpath, os.path.basename(src))
+    if os.path.isfile(output_file):
+        dst_mtime = os.stat(output_file).st_mtime
+    else:
+        # Make sure the target is updated
+        dst_mtime = 0
+    # Check if source is newer that destination
+    if src_mtime > dst_mtime:
+        # Add destination path
+        output_path = os.path.join(dst, relpath)
+        # Create directory if it does not exist
+        if not os.path.isdir(output_path):
+            logger.debug('Creating path: ' + output_path)
+            os.makedirs(output_path, mode=0o755)
+        logger.info('Copying "' + src + '" to "' + output_path + '"')
+        return shutil.copy2(src, output_path)
+    else:
+        logger.debug('Skipping: ' + src)
+        # Return destination anyway, to have a list of supposedly copied files
+        return output_file
 
 
 def cleanup_destination(output_path, written_files):

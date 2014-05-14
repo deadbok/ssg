@@ -180,7 +180,6 @@ def apply_templates(path, context):
     generators.run(context)
     # Run through all content
     try:
-        logger.info('Applying to contents.')
         for content in context.contents:
             # Use specified template or index.html
             if 'template' in content['metadata'].keys():
@@ -220,7 +219,7 @@ def run(root):
     # Process the input files
     CONTEXT = process_content(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
     # Apply the templates
-    CONTEXT = apply_templates(os.path.join(root, 'templates'), CONTEXT)
+    CONTEXT = apply_templates(os.path.join(root, SETTINGS['TEMPLATEDIR']), CONTEXT)
     # Copy and write the output files
     writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
 

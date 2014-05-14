@@ -20,6 +20,9 @@ ROOTDIR
 CONTENTDIR
     Sub directory of ROOTDIR with site content. Default *content*.
 
+TEMPLATEDIR
+    Sub directory of ROOTDIR with site templates. Default *templates*.
+
 OUTPUTDIR
     Sub directory of ROOTDIR where the final site is saved. Default *output*.
 
@@ -52,6 +55,7 @@ DEFAULT_CONFIG = {
     'SITEURL': 'http://localhost/',
     'ROOTDIR': os.getcwd(),
     'CONTENTDIR': 'content',
+    'TEMPLATEDIR': 'templates',
     'OUTPUTDIR': 'output',
     'DATEFORMAT': '%Y-%m-%d %H:%M',
     'COPYSOURCES': True,

@@ -9,7 +9,7 @@ import ssg.metaext.categorymetaparser
 
 def parsers_run(filename):
     '''Run all active parsers.'''
-    logger.info("Running meta data parsers.")
+    logger.debug("Running meta data parsers.")
     metadata = dict()
     # Run through extra meta data parsers.
     for parser in META_PARSERS:

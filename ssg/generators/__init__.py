@@ -9,7 +9,7 @@ import ssg.generators.blogindex
 
 def run(context):
     '''Run all active parsers.'''
-    logger.info("Running generators.")
+    logger.debug("Running generators.")
     # Run through extra meta data parsers.
     for generator in GENERATORS:
         if generator.__class__.__name__ in SETTINGS['GENERATORS']:

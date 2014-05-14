@@ -9,7 +9,7 @@ import ssg.contentfilters.localurl
 
 def run(content):
     '''Run all active parsers.'''
-    logger.info("Running content filters.")
+    logger.debug("Running content filters.")
     # Run through extra meta data parsers.
     for generator in CONTENTFILTERS:
         if generator.__class__.__name__ in SETTINGS['CONTENTFILTERS']:
