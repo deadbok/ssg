@@ -3,9 +3,10 @@
 Main file for Static Site Generator
 '''
 import os
-import optparse
+import argparse
 import ssg
 from ssg.log import logger
+from ssg.settings import SETTINGS
 
 
 def main():
@@ -13,16 +14,20 @@ def main():
     The entry point.
     '''
     # Parse command line
-    usage = "usage: %prog [options]"
-    arg_parser = optparse.OptionParser(usage=usage)
-    arg_parser.add_option("-d", "--debug",
-                          action="store_true", dest="debug",
-                          default=False,
-                          help="Print debug information")
-    (options, args) = arg_parser.parse_args()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("-d", "--debug",
+                            action="store_true", dest="debug",
+                            default=False,
+                            help="Print debug information")
+    arg_parser.add_argument("-s", "--site_url",
+                            help="Set the site URL.")
+    args = arg_parser.parse_args()
 
     try:
-        ssg.init(options.debug)
+        ssg.init(args.debug)
+        # Set site URL if specified on the command line
+        if not args.site_url == None:
+            SETTINGS['SITEURL'] = args.site_url
         logger.info("Static Site Generator V." + ssg.__version__)
         root = os.getcwd()
         ssg.run(root)
