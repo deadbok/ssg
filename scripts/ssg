@@ -16,11 +16,13 @@ def main():
     # Parse command line
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-d", "--debug",
-                            action="store_true", dest="debug",
-                            default=False,
+                            action="store_true", dest="debug", default=False,
                             help="Print debug information")
-    arg_parser.add_argument("-s", "--site_url",
-                            help="Set the site URL.")
+    arg_parser.add_argument("-s", "--site_url", help="Set the site URL.")
+    arg_parser.add_argument("--write-all", action="store_true",
+                            dest="write_all", default=False,
+                            help="Write all files, instead of updating."
+                            )
     args = arg_parser.parse_args()
 
     try:
@@ -30,7 +32,10 @@ def main():
             SETTINGS['SITEURL'] = args.site_url
         logger.info("Static Site Generator V." + ssg.__version__)
         root = os.getcwd()
-        ssg.run(root)
+        if args.write_all:
+            ssg.run(root, False)
+        else:
+            ssg.run(root, True)
     finally:
         ssg.close()
 

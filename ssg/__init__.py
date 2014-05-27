@@ -207,11 +207,13 @@ def apply_templates(path, context):
     return(context)
 
 
-def run(root):
+def run(root, update):
     '''Process everything and create output files.
 
     :param root: The root of the site files.
     :type root: string
+    :param update: Only write updated files.
+    :type update: bool
     '''
     global CONTEXT
     # Add settings to global context
@@ -221,7 +223,7 @@ def run(root):
     # Apply the templates
     CONTEXT = apply_templates(os.path.join(root, SETTINGS['TEMPLATEDIR']), CONTEXT)
     # Copy and write the output files
-    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
+    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT, update)
 
 
 def close():

@@ -32,6 +32,9 @@ def _check_updated(context):
         mtime = os.stat(fullpath).st_mtime
         if newest_template < mtime:
             newest_template = mtime
+
+    # Get the config file modification time
+    config_time = os.stat(SETTINGS['ROOTDIR'] + '/config.py').st_mtime
     # Update all content older than the newest template
     # Get changed content
     # Run through all content.
@@ -50,14 +53,20 @@ def _check_updated(context):
             logger.debug('Destination mtime: ' + str(dst_mtime))
             logger.debug('Newest template mtime: ' + str(newest_template))
             # Check if destination is older than newest template
+            if dst_mtime < config_time:
+                logger.debug('Destination needs updating. Config change.')
+                # Content updated
+                content_upd = True
+                content['metadata']['updated'] = True
+            # Check if destination is older than newest template
             if dst_mtime < newest_template:
-                logger.debug('Destination needs updating.')
+                logger.debug('Destination needs updating. Template change.')
                 # Content updated
                 content_upd = True
                 content['metadata']['updated'] = True
             # Check if source is newer that destination
             if src_mtime > dst_mtime:
-                logger.debug('Destination needs updating.')
+                logger.debug('Destination needs updating. Source change.')
                 # Content updated
                 content_upd = True
                 content['metadata']['updated'] = True
@@ -108,14 +117,15 @@ def file_writer(content):
     return output_filename
 
 
-def copy_file(src, dst):
-    '''Copy a file, and create any target directories needed. `copy_file`
-    checks is the destination needs updating.
+def copy_file(src, dst, update=True):
+    '''Copy a file, and create any target directories needed.
 
     :param src: The source file.
     :type src: string
     :param dst: The destination path.
     :type dst: string
+    :param update: Only copy updated files.
+    :type update: bool
     :return: Filename of the destination.
     :rtype: string
     '''
@@ -135,7 +145,7 @@ def copy_file(src, dst):
         # Make sure the target is updated
         dst_mtime = 0
     # Check if source is newer that destination
-    if src_mtime > dst_mtime:
+    if (src_mtime > dst_mtime) or (update == False):
         # Add destination path
         output_path = os.path.join(dst, relpath)
         # Create directory if it does not exist
@@ -205,20 +215,27 @@ def cleanup_destination(output_path, written_files):
             os.rmdir(output_dir)
 
 
-def write(input_path, context):
+def write(input_path, context, update=True):
     '''Write and copy all output files into place.
 
     :param input_path: Path with input files.
     :type input_path: string
     :param context: Context to write.
     :type context: dict
+    :param update: Only write updated files.
+    :type update: bool
     '''
     # Create a list of input files
     input_files = get_files(input_path, '.*')
     # Create a list of written files
     written_files = list()
-    # Check which needs an update.
-    _check_updated(context)
+    if update:
+        # Check which needs an update.
+        _check_updated(context)
+    else:
+        # Update all
+        for content in context.contents:
+            content['metadata']['updated'] = True
     # Write all content
     logger.info('Saving HTML output.')
     for content in context.contents:
@@ -238,13 +255,13 @@ def write(input_path, context):
         _, ext = os.path.splitext(filename)
         if ext.lower() == '.md':
             if SETTINGS['COPYSOURCES']:
-                written_files.append(copy_file(filename, output_path))
+                written_files.append(copy_file(filename, output_path, update))
             else:
                 logger.debug('Skipping: ' + filename)
         # Skip duplicates of files created by ssg.
         elif not filename in written_files:
             # Write other files.
-            written_files.append(copy_file(filename, output_path))
+            written_files.append(copy_file(filename, output_path, update))
         else:
             logger.debug('Skipping: ' + filename)
     # Remove files that are no longer in the source

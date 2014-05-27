@@ -74,7 +74,7 @@ def init():
     '''
     try:
         # Import config.py
-        config = SourceFileLoader('config', os.getcwd() +
+        config = SourceFileLoader('config', SETTINGS['ROOTDIR'] +
                                   '/config.py').load_module()
         # Update settings with values from config.py
         SETTINGS.update(config.CONFIG)
