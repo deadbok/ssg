@@ -53,6 +53,8 @@ Generator
 
 .. automodule:: ssg.generators.blogindex
 
+.. automodule:: ssg.generators.categoryindex
+
 
 Writer
 ======

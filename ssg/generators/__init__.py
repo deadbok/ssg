@@ -5,6 +5,7 @@ from ssg.log import logger
 
 # Add generators here
 import ssg.generators.blogindex
+import ssg.generators.categoryindex
 
 
 def run(context):
