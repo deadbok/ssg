@@ -6,7 +6,7 @@ import logging
 import os
 import markdown
 from ssg import writer
-from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
+from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError, TemplateError
 from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
@@ -159,10 +159,21 @@ def process_content(path, context):
                 context.contents.append(content)
         except Exception as exception:
             logger.exception('Exception reading file: ' + filename)
-            if hasattr(exception, 'message'):
-                logger.exception(exception.message)
-            die()
+            raise exception
     return(context)
+
+
+def sanity_checks(context):
+    '''Checks to see if the templates and content actually should parse.
+
+    :param context:
+    :type context:
+    '''
+    for content in context.contents:
+        # Check if template is set
+        if not 'template' in content['metadata']:
+            raise ContentParserError('Missing template in: '
+                                     + content['metadata']['src_file'])
 
 
 def apply_templates(path, context):
@@ -200,10 +211,15 @@ def apply_templates(path, context):
             content['html'] = tpl.render(local_context)
     except TemplateSyntaxError as exception:
         logger.error('Jinja2 syntax error:')
-        logger.error(exception.message)
-        logger.error('In ' + exception.name + ' line number :' + str(exception.lineno))
+        logger.error('In ' + exception.name + ' line number :'
+                     + str(exception.lineno))
         logger.error(exception.filename)
-        exit(1)
+        raise exception
+    except TemplateError as exception:
+        logger.error('Jinja2 syntax error:')
+        logger.error('Template: ' + content['metadata']['template'])
+        logger.error('Destination: ' + content['metadata']['dst_file'])
+        raise exception
     return(context)
 
 
@@ -218,12 +234,24 @@ def run(root, update):
     global CONTEXT
     # Add settings to global context
     CONTEXT.settings = SETTINGS
-    # Process the input files
-    CONTEXT = process_content(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT)
-    # Apply the templates
-    CONTEXT = apply_templates(os.path.join(root, SETTINGS['TEMPLATEDIR']), CONTEXT)
-    # Copy and write the output files
-    writer.write(os.path.join(root, SETTINGS['CONTENTDIR']), CONTEXT, update)
+    try:
+        # Process the input files
+        CONTEXT = process_content(os.path.join(root, SETTINGS['CONTENTDIR']),
+                                  CONTEXT)
+        # Template and content sanity checks
+        sanity_checks(CONTEXT)
+        # Apply the templates
+        CONTEXT = apply_templates(os.path.join(root,
+                                               SETTINGS['TEMPLATEDIR']),
+                                  CONTEXT)
+        # Copy and write the output files
+        writer.write(os.path.join(root, SETTINGS['CONTENTDIR']),
+                     CONTEXT,
+                     update)
+    except Exception as exception:
+        logger.error(str(exception))
+        raise exception
+        die()
 
 
 def close():
