@@ -174,6 +174,9 @@ def sanity_checks(context):
         if not 'template' in content['metadata']:
             raise ContentParserError('Missing template in: '
                                      + content['metadata']['src_file'])
+        if not 'title' in content['metadata']:
+            raise ContentParserError('Missing title in: '
+                                     + content['metadata']['src_file'])
 
 
 def apply_templates(path, context):

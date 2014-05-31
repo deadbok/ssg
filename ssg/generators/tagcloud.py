@@ -20,11 +20,12 @@ from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
 from ssg.metadata import ishidden
+from collections import OrderedDict
 
 
 class TagCloudGenerator(generator.GeneratorBase):
     '''
-    Generate a ``catindex.html`` from a template.
+    Generate an ``tagcloud.html`` from a template.
     '''
     def __init__(self):
         '''
@@ -42,11 +43,11 @@ class TagCloudGenerator(generator.GeneratorBase):
         metadata['src_file'] = ''
         metadata['dst_file'] = os.path.join(SETTINGS['ROOTDIR'],
                                             SETTINGS['OUTPUTDIR'])
-        metadata['dst_file'] += '/catindex.html'
-        metadata['title'] = 'Category index'
+        metadata['dst_file'] += '/tagcloud.html'
+        metadata['title'] = 'Tag cloud'
         metadata['date'] = datetime.now()
         metadata['type'] = 'index'
-        metadata['template'] = 'categories'
+        metadata['template'] = 'tagcloud'
         # Create a contents node for the index
         content = dict()
         # Add meta data
@@ -57,7 +58,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         # Add contents to context
         return(content)
 
-    def _create_tag_index(self, context, posts, category):
+    def _create_tag_index(self, context, posts, tag):
         '''Create an catindex.html from a context.
 
         :param context:
@@ -65,21 +66,22 @@ class TagCloudGenerator(generator.GeneratorBase):
         :param posts: List of posts in the index.
         :type posts: list
         '''
-        logger.debug('Creating categories page for:' + category)
+        logger.debug('Creating categories page for:' + tag)
+        dst_file = tag.replace(' ', '_')
+        dst_file = '/tag_' + dst_file.replace('/', '-') + '_index.html'
         index = self._create_index_metadata()
         index['metadata']['dst_file'] = os.path.join(SETTINGS['ROOTDIR'],
                                                      SETTINGS['OUTPUTDIR'])
-        index['metadata']['dst_file'] += ('/cat_' + category.replace('/', '-')
-                                          + '_index.html')
-        index['metadata']['title'] = 'Category index: ' + category
-        index['metadata']['template'] = 'category'
+        index['metadata']['dst_file'] += dst_file
+        index['metadata']['title'] = 'Tag index: ' + tag
+        index['metadata']['template'] = 'tag'
         # Add local context
         index['context'] = {'context': context,
                             'posts': posts,
                             'content': index}
 
         context.contents.append(index)
-        return('/cat_' + category.replace('/', '-') + '_index.html')
+        return(dst_file)
 
     def run(self, context):
         '''Run the generator.
@@ -89,7 +91,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         '''
         logger.debug('Running TagCloudGenerator extension.')
 
-        categories = dict()
+        tags = dict()
         # Run through all content and create a list of cetegories
         for content in context.contents:
             logger.debug(content['metadata']['title'])
@@ -98,30 +100,45 @@ class TagCloudGenerator(generator.GeneratorBase):
                 if ishidden(content['metadata']):
                     logger.debug('Hiding.')
                 else:
-                    if 'category' in content['metadata']:
-                        category = '/'.join(content['metadata']['category'])
-                        if category in categories:
-                            categories[category]['items'] += 1
-                            categories[category]['posts'].append(content)
-                        else:
-                            logger.debug('Adding: ' + category)
-                            categories[category] = dict()
-                            categories[category]['items'] = 1
-                            categories[category]['posts'] = list()
-                            categories[category]['posts'].append(content)
+                    if 'tags' in content['metadata']:
+                        # Run through tags
+                        for tag in content['metadata']['tags'].split(','):
+                            tag = tag.strip().lower()
+                            if tag in tags:
+                                tags[tag]['items'] += 1
+                                tags[tag]['posts'].append(content)
+                            else:
+                                logger.debug('Adding: ' + tag)
+                                tags[tag] = dict()
+                                tags[tag]['items'] = 1
+                                tags[tag]['posts'] = list()
+                                tags[tag]['posts'].append(content)
 
-        for category, data in categories.items():
-            categories[category]['filename'] = self._create_tag_index(context,
-                                                                      data['posts'],
-                                                                      category)
+        # Get maximum number of tags
+        max_tags = 1
+        for tag in tags.values():
+            if max_tags < tag['items']:
+                max_tags = tag['items']
+        logger.debug('Most used tag used: ' + str(max_tags))
+        # Calculate the tag scale factor to get it in 1-10 range.
+        tag_scale = 10 / max_tags
+        logger.debug('Tag scaling: ' + str(tag_scale))
+        # Normalise use range
+        for tag in tags.values():
+            tag['items'] = int(tag['items'] * tag_scale)
 
-        logger.debug('Creating category page.')
+        for tag, data in tags.items():
+            tags[tag]['filename'] = self._create_tag_index(context,
+                                                           data['posts'],
+                                                           tag)
+
+        logger.debug('Creating tag page.')
         index = self._create_index_metadata()
         # Add local context
-        category_names = sorted(categories)
+        tag_names = sorted(tags)
         index['context'] = {'context': context,
-                            'categories': categories,
-                            'category_names': category_names
+                            'tags': tags,
+                            'tag_names': tag_names
                             }
 
         context.contents.append(index)

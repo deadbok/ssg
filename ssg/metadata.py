@@ -10,7 +10,7 @@ src_file
     The full path and name of the Markdown file the meta data belongs to.
 
 dst_file
-    The full pth and name of the destination HTML file.
+    The full paqth and name of the destination HTML file.
 
 template
     Specify the template to use for this file, else use 'index.html'
@@ -30,6 +30,20 @@ of the file, or some other useful data. Meta data extensions all inherit
 '''
 # List of active meta data parsers.
 META_PARSERS = list()
+
+
+def ishidden(metadata):
+    '''Check if content has 'status:' 'hidden.
+
+    :param metadata: The meta data of the content to test
+    :type metadata: dict
+    :return: Whether the post is hidden
+    :rtype: bool
+    '''
+    if 'status' in metadata:
+        if metadata['status'] == 'hidden':
+            return True
+    return False
 
 
 class MetaParserBase(object):
