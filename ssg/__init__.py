@@ -19,7 +19,7 @@ from ssg import contentfilters
 from ssg.markdownext.figure import FigureExtension
 
 
-__version__ = '0.0.2'
+__version__ = '0.0.4'
 configs = {}
 # Instantiate Markdown extensions
 figure = FigureExtension(configs=configs)
@@ -40,11 +40,14 @@ def init(debug=False):
 
     :param debug: True enables debugging to console
     '''
+    # Init logging to file
     init_file_log(logging.DEBUG)
+    # Set the console logging level
     if debug:
         init_console_log(logging.DEBUG)
     else:
         init_console_log(logging.INFO)
+    # Init settings placeholder
     settings.init()
 
 
@@ -66,7 +69,7 @@ def _get_url(metadata):
     output_filename, _ = os.path.splitext(output_filename)
     # Add new
     output_filename += '.html'
-
+    # Add the filename to the URL
     url += output_filename
     logger.debug('URL: ' + url)
     return url
@@ -137,8 +140,6 @@ def process_content(path, context):
         try:
             # Open it
             with open(filename, 'r') as markdown_file:
-
-
                 logger.info("Reading: " + filename)
                 # Create an instance of the Markdown processor
                 md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,
@@ -164,7 +165,7 @@ def process_content(path, context):
 
 
 def sanity_checks(context):
-    '''Checks to see if the templates and content actually should parse.
+    '''Checks to see if the templates and content actually parses.
 
     :param context:
     :type context:

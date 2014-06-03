@@ -20,12 +20,11 @@ from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
 from ssg.metadata import ishidden
-from collections import OrderedDict
 
 
 class TagCloudGenerator(generator.GeneratorBase):
     '''
-    Generate an ``tagcloud.html`` from a template.
+    Generate a tag cloud and tag index files from a template.
     '''
     def __init__(self):
         '''
@@ -59,7 +58,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         return(content)
 
     def _create_tag_index(self, context, posts, tag):
-        '''Create an catindex.html from a context.
+        '''Create a tag index from a context.
 
         :param context:
         :type context:
@@ -67,9 +66,12 @@ class TagCloudGenerator(generator.GeneratorBase):
         :type posts: list
         '''
         logger.debug('Creating categories page for:' + tag)
+        # Generate index filename from tag
         dst_file = tag.replace(' ', '_')
         dst_file = '/tag_' + dst_file.replace('/', '-') + '_index.html'
+        # Create meta data
         index = self._create_index_metadata()
+        # Adjust meta data for the tag index template
         index['metadata']['dst_file'] = os.path.join(SETTINGS['ROOTDIR'],
                                                      SETTINGS['OUTPUTDIR'])
         index['metadata']['dst_file'] += dst_file
@@ -92,7 +94,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         logger.debug('Running TagCloudGenerator extension.')
 
         tags = dict()
-        # Run through all content and create a list of cetegories
+        # Run through all content and create a dict of tags
         for content in context.contents:
             logger.debug(content['metadata']['title'])
             # Skip pages or hidden

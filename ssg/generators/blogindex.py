@@ -10,9 +10,6 @@ Adds keys 'page', and 'pages' to the metadata of the indices.
 Content is sorted by date.
 
 Adds the config key "POSTPERINDEX", to set the number of posts per index page.
-
-**If content is of type 'post' the 'post.html' template is used**, if no
-template explicitly set in the meta data of the content.
 '''
 import os
 from datetime import datetime

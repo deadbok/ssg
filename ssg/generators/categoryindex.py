@@ -1,5 +1,5 @@
 '''
-TagCloudGenerator
+CategoryIndexGenerator
 ==================
 
 Generate ``index`` files from a template of the same name. This is
@@ -19,12 +19,12 @@ from datetime import datetime
 from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
-from ssg.metadata import ishidden
+from collections import OrderedDict
 
 
-class TagCloudGenerator(generator.GeneratorBase):
+class CategoryIndexGenerator(generator.GeneratorBase):
     '''
-    Generate a ``catindex.html`` from a template.
+    Generate an ``catindex.html`` from a template.
     '''
     def __init__(self):
         '''
@@ -57,7 +57,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         # Add contents to context
         return(content)
 
-    def _create_tag_index(self, context, posts, category):
+    def _create_category_index(self, context, posts, category):
         '''Create an catindex.html from a context.
 
         :param context:
@@ -87,31 +87,27 @@ class TagCloudGenerator(generator.GeneratorBase):
         :param context: The context of the site.
         :type context: ssg.context.Context
         '''
-        logger.debug('Running TagCloudGenerator extension.')
+        logger.debug('Running CategoryIndexGenerator extension.')
 
         categories = dict()
         # Run through all content and create a list of cetegories
         for content in context.contents:
-            logger.debug(content['metadata']['title'])
             # Skip pages or hidden
             if not content['metadata']['template'] == 'page':
-                if ishidden(content['metadata']):
-                    logger.debug('Hiding.')
-                else:
-                    if 'category' in content['metadata']:
-                        category = '/'.join(content['metadata']['category'])
-                        if category in categories:
-                            categories[category]['items'] += 1
-                            categories[category]['posts'].append(content)
-                        else:
-                            logger.debug('Adding: ' + category)
-                            categories[category] = dict()
-                            categories[category]['items'] = 1
-                            categories[category]['posts'] = list()
-                            categories[category]['posts'].append(content)
+                if 'category' in content['metadata']:
+                    category = '/'.join(content['metadata']['category'])
+                    if category in categories:
+                        categories[category]['items'] += 1
+                        categories[category]['posts'].append(content)
+                    else:
+                        logger.debug('Adding: ' + category)
+                        categories[category] = dict()
+                        categories[category]['items'] = 1
+                        categories[category]['posts'] = list()
+                        categories[category]['posts'].append(content)
 
         for category, data in categories.items():
-            categories[category]['filename'] = self._create_tag_index(context,
+            categories[category]['filename'] = self._create_category_index(context,
                                                                       data['posts'],
                                                                       category)
 
@@ -126,5 +122,5 @@ class TagCloudGenerator(generator.GeneratorBase):
 
         context.contents.append(index)
 
-# Add TagCloudGenerator to list of parsers
-generator.GENERATORS.append(TagCloudGenerator())
+# Add CategoryIndexGenerator to list of parsers
+generator.GENERATORS.append(CategoryIndexGenerator())
