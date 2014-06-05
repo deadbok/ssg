@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 '''
-Main file for Static Site Generator
+The main Static Site generator executable is called ```ssg```. This is a Python
+command line program.
 '''
 import os
 import argparse
@@ -23,19 +24,21 @@ def main():
                             dest="write_all", default=False,
                             help="Write all files, instead of updating."
                             )
+    arg_parser.add_argument("-r", "--root", dest="root", default=None,
+                            help="Set the root directory of the site. Default is current directory."
+                            )
     args = arg_parser.parse_args()
 
     try:
-        ssg.init(args.debug)
+        ssg.init(args.debug, args.root)
         # Set site URL if specified on the command line
         if not args.site_url == None:
             SETTINGS['SITEURL'] = args.site_url
         logger.info("Static Site Generator V." + ssg.__version__)
-        root = os.getcwd()
         if args.write_all:
-            ssg.run(root, False)
+            ssg.run(False)
         else:
-            ssg.run(root, True)
+            ssg.run(True)
     finally:
         ssg.close()
 
