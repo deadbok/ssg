@@ -1,25 +1,16 @@
 '''
 CategoryIndexGenerator
-==================
+======================
 
-Generate ``index`` files from a template of the same name. This is
-useful for blogs and pages for indexing articles, creating the index on the
-fly.
-Adds a list of post to the Jinja2 context, called "posts".
-Adds keys 'page', and 'pages' to the metadata of the indices.
-Content is sorted by date.
-
-Adds the config key "POSTPERINDEX", to set the number of posts per index page.
-
-**If content is of type 'post' the 'post.html' template is used**, if no
-template explicitly set in the meta data of the content.
+Generate an a category page, and indexes for each category. This plug in uses
+the meta data tag ``category`` for the category, it expects sub categories
+expressed as UNIX paths.
 '''
 import os
 from datetime import datetime
 from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
-from collections import OrderedDict
 
 
 class CategoryIndexGenerator(generator.GeneratorBase):

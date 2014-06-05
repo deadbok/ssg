@@ -68,10 +68,16 @@ DEFAULT_CONFIG = {
 SETTINGS = DEFAULT_CONFIG
 
 
-def init():
+def init(root):
+    '''Initialise settings from default values and config.py, in the a
+    directory.
+
+    :param root: Root directory of the site
+    :type root: string
     '''
-    Initialise settings from default values and config.py, in the current dir.
-    '''
+    if not root == None:
+        SETTINGS['ROOTDIR'] = root
+
     try:
         # Import config.py
         config = SourceFileLoader('config', SETTINGS['ROOTDIR'] +

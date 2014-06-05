@@ -6,7 +6,8 @@ import logging
 import os
 import markdown
 from ssg import writer
-from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError, TemplateError
+from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
+from jinja2 import TemplateError
 from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
@@ -27,6 +28,8 @@ figure = FigureExtension(configs=configs)
 MARKDOWN_EXTENSIONS = ['extra', 'meta', figure]
 '''Markdown extension to use.'''
 
+DEBUG = False
+
 
 class ContentParserError(RuntimeError):
     '''
@@ -35,20 +38,25 @@ class ContentParserError(RuntimeError):
     pass
 
 
-def init(debug=False):
+def init(debug=False, root=None):
     '''Initialise ssg
 
     :param debug: True enables debugging to console
+    :type debug: bool
+    :param root: Root directory of the site
+    :type root: string
     '''
+    global DEBUG
     # Init logging to file
     init_file_log(logging.DEBUG)
     # Set the console logging level
     if debug:
         init_console_log(logging.DEBUG)
+        DEBUG = True
     else:
         init_console_log(logging.INFO)
     # Init settings placeholder
-    settings.init()
+    settings.init(root)
 
 
 def _get_url(metadata):
@@ -170,6 +178,7 @@ def sanity_checks(context):
     :param context:
     :type context:
     '''
+    logger.debug("Running sanity checks on input.")
     for content in context.contents:
         # Check if template is set
         if not 'template' in content['metadata']:
@@ -227,34 +236,34 @@ def apply_templates(path, context):
     return(context)
 
 
-def run(root, update):
+def run(update):
     '''Process everything and create output files.
 
-    :param root: The root of the site files.
-    :type root: string
     :param update: Only write updated files.
     :type update: bool
     '''
-    global CONTEXT
+    global CONTEXT, DEBUG
     # Add settings to global context
     CONTEXT.settings = SETTINGS
     try:
         # Process the input files
-        CONTEXT = process_content(os.path.join(root, SETTINGS['CONTENTDIR']),
+        CONTEXT = process_content(os.path.join(SETTINGS['ROOTDIR'],
+                                               SETTINGS['CONTENTDIR']),
                                   CONTEXT)
         # Template and content sanity checks
         sanity_checks(CONTEXT)
         # Apply the templates
-        CONTEXT = apply_templates(os.path.join(root,
+        CONTEXT = apply_templates(os.path.join(SETTINGS['ROOTDIR'],
                                                SETTINGS['TEMPLATEDIR']),
                                   CONTEXT)
         # Copy and write the output files
-        writer.write(os.path.join(root, SETTINGS['CONTENTDIR']),
+        writer.write(os.path.join(SETTINGS['ROOTDIR'], SETTINGS['CONTENTDIR']),
                      CONTEXT,
                      update)
     except Exception as exception:
         logger.error(str(exception))
-        raise exception
+        if DEBUG:
+            raise exception
         die()
 
 
