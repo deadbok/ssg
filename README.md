@@ -3,8 +3,8 @@ Introduction
 
 Static site generator is a toy of mine, since many python static blog 
 generators are pretty large, and intimidating. This is an exercise to make a
-simple framework for static site generation. On top of this a blog engine is
-appearing.
+simple framework for static site generation. On top of this a blog engine has
+been written.
 
 Static Site Generator basics
 ----------------------------
@@ -18,6 +18,20 @@ A lot can be done solely in the `Jinja2`_ templates, but some steps in the
 conversion can be hooked into, by extending ssg. I test ssg
 on my blog, the engine is made by extensions to ssg, and `Jinja2`_
 templates.
+
+ssg
+===
+The main Static Site generator executable is called ```ssg```. This is a Python
+command line program.
+
+Command line options
+--------------------
+
+-d, --debug		Print debug information.
+-s, --site_url	Set the site URL.
+--write-all		Write all files, instead of updating.
+-r, --root		Set the root directory of the site. Default is current
+				directory.
 
 .. _Markdown: http://daringfireball.net/projects/markdown
 .. _Jinja2: http://jinja.pocoo.org/

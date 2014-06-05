@@ -55,6 +55,8 @@ Generator
 
 .. automodule:: ssg.generators.categoryindex
 
+.. automodule:: ssg.generators.tagcloud
+
 
 Writer
 ======
