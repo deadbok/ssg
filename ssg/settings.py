@@ -45,7 +45,6 @@ CONTENTFILTERS
 '''
 from importlib.machinery import SourceFileLoader
 import os
-
 from ssg.log import logger
 
 
@@ -75,6 +74,8 @@ def init(root):
     :param root: Root directory of the site
     :type root: string
     '''
+    global DEBUG
+
     if not root == None:
         SETTINGS['ROOTDIR'] = root
 
@@ -86,3 +87,36 @@ def init(root):
         SETTINGS.update(config.CONFIG)
     except FileNotFoundError:
         logger.warning("No config.py found, using default values.")
+    except SyntaxError as exception:
+        logger.error('Syntax error in configuration file.')
+        logger.error(str(exception.lineno) + ':' + str(exception.offset) +
+                     ': ' + exception.text)
+        exit(1)
+
+
+def write_config(path):
+    '''
+    Write the value of the SETTINGS dictionary to ``config.py``.
+
+    :param path: Path pointing to where the file should be written.
+    :type path: string
+    '''
+    logger.debug("Writing configuration file.")
+    # Open file
+    with open(os.path.join(path, 'config.py'), 'w') as conf_file:
+        # Write dictionary definition
+        conf_file.write('CONFIG = {\n')
+        # Run though all keys
+        for name in SETTINGS.keys():
+            # Write key name
+            conf_file.write("'" + name + "': ")
+            # Write value
+            if isinstance(SETTINGS[name], str):
+                conf_file.write("'")
+            conf_file.write(str(SETTINGS[name]))
+            if isinstance(SETTINGS[name], str):
+                conf_file.write("'")
+            conf_file.write(',\n')
+
+        # Close the dictionary definition
+        conf_file.write('}\n')

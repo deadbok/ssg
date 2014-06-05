@@ -27,18 +27,27 @@ def main():
     arg_parser.add_argument("-r", "--root", dest="root", default=None,
                             help="Set the root directory of the site. Default is current directory."
                             )
+    arg_parser.add_argument("-c", "--create-site", action="store_true",
+                            dest="create_site", default=False,
+                            help="Create a directory skeleton and config file for a new site. Defaults to current directory."
+                            )
     args = arg_parser.parse_args()
 
     try:
         ssg.init(args.debug, args.root)
-        # Set site URL if specified on the command line
-        if not args.site_url == None:
-            SETTINGS['SITEURL'] = args.site_url
-        logger.info("Static Site Generator V." + ssg.__version__)
-        if args.write_all:
-            ssg.run(False)
+
+        # Should we just create an empty site?
+        if args.create_site:
+            ssg.create_empty_site(args.root)
         else:
-            ssg.run(True)
+            # Set site URL if specified on the command line
+            if not args.site_url == None:
+                SETTINGS['SITEURL'] = args.site_url
+            logger.info("Static Site Generator V." + ssg.__version__)
+            if args.write_all:
+                ssg.run(False)
+            else:
+                ssg.run(True)
     finally:
         ssg.close()
 

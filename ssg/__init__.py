@@ -11,7 +11,7 @@ from jinja2 import TemplateError
 from ssg.log import logger, init_file_log, init_console_log, close_log
 from ssg.metaext import parsers_run
 from ssg import settings
-from ssg.settings import SETTINGS
+from ssg.settings import SETTINGS, write_config
 from ssg.tools import get_files, get_datetime, die
 from ssg.context import CONTEXT
 from ssg import generators
@@ -234,6 +234,25 @@ def apply_templates(path, context):
         logger.error('Destination: ' + content['metadata']['dst_file'])
         raise exception
     return(context)
+
+
+def create_empty_site(path=None):
+    '''
+    Create the skeleton and config file for a new site.
+
+    :param path: Root path of the new site. Default is current directory.
+    :type path: string
+    '''
+    # Defaults to current directory
+    if path == None:
+        path = os.getcwd()
+    # Write a shiny new configuration file
+    write_config(path)
+
+    # Create directories
+    os.mkdir(os.path.join(SETTINGS['ROOTDIR'], SETTINGS['CONTENTDIR']))
+    os.mkdir(os.path.join(SETTINGS['ROOTDIR'], SETTINGS['TEMPLATEDIR']))
+    os.mkdir(os.path.join(SETTINGS['ROOTDIR'], SETTINGS['OUTPUTDIR']))
 
 
 def run(update):

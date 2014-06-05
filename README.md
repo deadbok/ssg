@@ -27,11 +27,13 @@ command line program.
 Command line options
 --------------------
 
--d, --debug		Print debug information.
--s, --site_url	Set the site URL.
---write-all		Write all files, instead of updating.
--r, --root		Set the root directory of the site. Default is current
-				directory.
+-d, --debug			Print debug information.
+-s, --site_url		Set the site URL.
+--write-all			Write all files, instead of updating.
+-r, --root			Set the root directory of the site. Default is current
+					directory.
+-c, --create-site	Create a directory skeleton and config file for a new site. 
+					Defaults to current directory.
 
 .. _Markdown: http://daringfireball.net/projects/markdown
 .. _Jinja2: http://jinja.pocoo.org/
