@@ -11,6 +11,7 @@ from datetime import datetime
 from ssg import generator
 from ssg.log import logger
 from ssg.settings import SETTINGS
+from ssg.metadata import ishidden
 
 
 class CategoryIndexGenerator(generator.GeneratorBase):
@@ -85,17 +86,20 @@ class CategoryIndexGenerator(generator.GeneratorBase):
         for content in context.contents:
             # Skip pages or hidden
             if not content['metadata']['template'] == 'page':
-                if 'category' in content['metadata']:
-                    category = '/'.join(content['metadata']['category'])
-                    if category in categories:
-                        categories[category]['items'] += 1
-                        categories[category]['posts'].append(content)
-                    else:
-                        logger.debug('Adding: ' + category)
-                        categories[category] = dict()
-                        categories[category]['items'] = 1
-                        categories[category]['posts'] = list()
-                        categories[category]['posts'].append(content)
+                if ishidden(content['metadata']):
+                    logger.debug('Hiding: ' + content['metadata']['title'])
+                else:
+                    if 'category' in content['metadata']:
+                        category = '/'.join(content['metadata']['category'])
+                        if category in categories:
+                            categories[category]['items'] += 1
+                            categories[category]['posts'].append(content)
+                        else:
+                            logger.debug('Adding: ' + category)
+                            categories[category] = dict()
+                            categories[category]['items'] = 1
+                            categories[category]['posts'] = list()
+                            categories[category]['posts'].append(content)
 
         for category, data in categories.items():
             categories[category]['filename'] = self._create_category_index(context,
