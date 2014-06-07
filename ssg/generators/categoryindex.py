@@ -103,11 +103,15 @@ class CategoryIndexGenerator(generator.GeneratorBase):
                     logger.debug('Hiding: ' + content['metadata']['title'])
                 else:
                     if 'category' in content['metadata']:
+                        # Generate category name
                         category = '/'.join(content['metadata']['category'])
+                        # Check if it is already created
                         if category in categories:
+                            # Increase post count and add post to the category
                             categories[category]['items'] += 1
                             categories[category]['posts'].append(content)
                         else:
+                            # Create a new category and add post
                             logger.debug('Adding: ' + category)
                             categories[category] = dict()
                             categories[category]['items'] = 1
