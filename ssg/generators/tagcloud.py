@@ -36,7 +36,6 @@ class TagCloudGenerator(generator.GeneratorBase):
         metadata['dst_file'] += '/tagcloud.html'
         metadata['title'] = 'Tag cloud'
         metadata['date'] = datetime.now()
-        metadata['type'] = 'index'
         metadata['template'] = 'tagcloud'
         # Create a contents node for the index
         content = dict()

@@ -47,7 +47,6 @@ class BlogIndexGenerator(generator.GeneratorBase):
         metadata['dst_file'] += '/index' + page + '.html'
         metadata['title'] = 'index'
         metadata['date'] = datetime.now()
-        metadata['type'] = 'index'
         metadata['template'] = 'index'
         # Page number
         if page == '':

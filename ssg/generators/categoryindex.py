@@ -5,6 +5,20 @@ CategoryIndexGenerator
 Generate an a category page, and indexes for each category. This plug in uses
 the meta data tag ``category`` for the category, it expects sub categories
 expressed as UNIX paths.
+
+
+Meta data keywords this plug in depends on
+------------------------------------------
+
+category
+    A list of categories.
+
+
+Reserved meta data keywords
+---------------------------
+
+catfile
+    Name of the category index file.
 '''
 import os
 from datetime import datetime
@@ -37,7 +51,6 @@ class CategoryIndexGenerator(generator.GeneratorBase):
         metadata['dst_file'] += '/catindex.html'
         metadata['title'] = 'Category index'
         metadata['date'] = datetime.now()
-        metadata['type'] = 'index'
         metadata['template'] = 'categories'
         # Create a contents node for the index
         content = dict()
@@ -84,8 +97,8 @@ class CategoryIndexGenerator(generator.GeneratorBase):
         categories = dict()
         # Run through all content and create a list of cetegories
         for content in context.contents:
-            # Skip pages or hidden
-            if not content['metadata']['template'] == 'page':
+            # Only posts that are not  hidden
+            if content['metadata']['template'] == 'post':
                 if ishidden(content['metadata']):
                     logger.debug('Hiding: ' + content['metadata']['title'])
                 else:
@@ -100,12 +113,22 @@ class CategoryIndexGenerator(generator.GeneratorBase):
                             categories[category]['items'] = 1
                             categories[category]['posts'] = list()
                             categories[category]['posts'].append(content)
-
+        # Assign index file names to categories.
         for category, data in categories.items():
             categories[category]['filename'] = self._create_category_index(context,
-                                                                      data['posts'],
-                                                                      category)
+                                               data['posts'],
+                                               category)
+            logger.debug('Assigning filename to category: ' + categories[category]['filename'])
 
+        # Assign index file names to posts.
+        for content in context.contents:
+            # Only posts that are not  hidden
+            if content['metadata']['template'] == 'post':
+                if not ishidden(content['metadata']):
+                    logger.debug('Assigning filename to post: ' +
+                                 content['metadata']['title'])
+                    filename = categories['/'.join(content['metadata']['category'])]['filename']
+                    content['metadata']['catfile'] = filename
         logger.debug('Creating category page.')
         index = self._create_index_metadata()
         # Add local context
