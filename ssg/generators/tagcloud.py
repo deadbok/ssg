@@ -2,8 +2,21 @@
 TagCloudGenerator
 ==================
 
-Generate a tag cloud and coresponding tag index pages. This plug in uses
-the meta data tag ``tags`` for the tags.
+Generate a tag cloud and coresponding tag index pages.
+
+
+Meta data keywords this plug in depends on
+------------------------------------------
+
+tags
+    A list tags.
+
+
+Reserved meta data keywords
+---------------------------
+
+tagfiles
+    Dictionary of index file names for each tag.
 '''
 import os
 from datetime import datetime
@@ -88,7 +101,7 @@ class TagCloudGenerator(generator.GeneratorBase):
         for content in context.contents:
             logger.debug(content['metadata']['title'])
             # Skip pages or hidden
-            if not content['metadata']['template'] == 'page':
+            if content['metadata']['template'] == 'post':
                 if ishidden(content['metadata']):
                     logger.debug('Hiding.')
                 else:
@@ -123,6 +136,24 @@ class TagCloudGenerator(generator.GeneratorBase):
             tags[tag]['filename'] = self._create_tag_index(context,
                                                            data['posts'],
                                                            tag)
+        # Assign index file names to posts
+        for content in context.contents:
+            # Dictionary to hold the filenames
+            filelist = dict()
+            # Only posts that are not hidden
+            if content['metadata']['template'] == 'post':
+                if not ishidden(content['metadata']):
+                    logger.debug('Assigning filename to post: ' +
+                                 content['metadata']['title'])
+                    # Run through all tags
+                    if 'tags' in content['metadata']:
+                        for tag in content['metadata']['tags'].split(','):
+                            tag = tag.lower().strip()
+                            filelist[tag] = tags[tag]['filename']
+                            logger.debug('"' + tags[tag]['filename'] + '"' +
+                                         ' for tag: ' + tag)
+            # Assign the file names to the post meta data
+            content['metadata']['tagfiles'] = filelist
 
         logger.debug('Creating tag page.')
         index = self._create_index_metadata()
