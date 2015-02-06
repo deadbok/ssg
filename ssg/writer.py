@@ -21,7 +21,7 @@ def _check_updated(context):
     :type context: ssg.context.Context
     '''
     logger.debug('Checking which files need updating.')
-    # ASsume nothin' needs to be updated
+    # Assume nothin' needs to be updated
     content_upd = False
     # Get template modification times
     template_files = get_files(os.path.join(SETTINGS['ROOTDIR'],
@@ -110,7 +110,7 @@ def file_writer(content):
         logger.debug('Creating path: ' + output_path)
         os.makedirs(output_path, mode=0o755)
 
-    with open(output_filename, 'w') as output_file:
+    with open(output_filename, 'w', encoding='utf8') as output_file:
         logger.info('Saving to: ' + output_filename)
         output_file.write(content['html'])
     output_file.close()
