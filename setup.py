@@ -33,7 +33,7 @@ def find_version(*file_paths):
 
 
 # Get the long description from the relevant file
-with codecs.open('README.md', encoding='utf-8') as f:
+with codecs.open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
