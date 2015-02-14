@@ -26,7 +26,14 @@ configs = {}
 # Instantiate Markdown extensions
 figure = FigureExtension(configs=configs)
 
-MARKDOWN_EXTENSIONS = ['extra', 'meta', figure]
+#Extra extensions
+#Meta-data extension
+#Table of Contents extension
+#Figure extension
+MARKDOWN_EXTENSIONS = [	'markdown.extensions.extra', 
+						'markdown.extensions.meta', 
+						'markdown.extensions.toc',
+						figure]
 '''Markdown extension to use.'''
 
 DEBUG = False
