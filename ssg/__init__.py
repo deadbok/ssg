@@ -227,7 +227,7 @@ def apply_templates(path, context):
             else:
                 local_context = {'context': context, 'content': content}
             # Render template
-            logger.debug('Rendering template "' + template
+            logger.info('Rendering template "' + template
                          + '" with "' + content['metadata']['src_file'] + '"')
             content['html'] = tpl.render(local_context)
     except TemplateSyntaxError as exception:
