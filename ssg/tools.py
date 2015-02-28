@@ -70,7 +70,13 @@ def get_datetime(datetime_str):
     :type datatime_str: string
     '''
     logger.debug('Generating datetime object from: ' + datetime_str)
-    ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
+    try:
+        ret = datetime.strptime(datetime_str, SETTINGS['DATEFORMAT'])
+    except ValueError as exception:
+        logger.error('Metadata syntax error:')
+        logger.error('Cannot convert date: ' + datetime_str);
+        raise exception
+    
     logger.debug('datetime object: ' + str(ret))
     return(ret)
 
