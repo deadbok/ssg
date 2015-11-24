@@ -1,8 +1,8 @@
 Static Site Generator
 =====================
 
-.. image:: https://codeclimate.com/github/thoughtbot/paperclip/badges/gpa.svg
-   :target: https://codeclimate.com/github/thoughtbot/paperclip
+.. image:: https://codeclimate.com/github/deadbok/ssg/badges/gpa.svg
+   :target: https://codeclimate.com/github/deadbok/ssg
    :alt: Code Climate
 
 Introduction
