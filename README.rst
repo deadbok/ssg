@@ -1,3 +1,10 @@
+Static Site Generator
+=====================
+
+.. image:: https://codeclimate.com/github/thoughtbot/paperclip/badges/gpa.svg
+   :target: https://codeclimate.com/github/thoughtbot/paperclip
+   :alt: Code Climate
+
 Introduction
 ============
 
