@@ -76,7 +76,7 @@ def init(root):
     '''
     global DEBUG
 
-    if not root == None:
+    if root is not None:
         SETTINGS['ROOTDIR'] = root
 
     try:

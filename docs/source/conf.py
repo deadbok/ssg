@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Static Site Generator'
-copyright = '2014, Martin Bo Kristensen Grønholdt'
+copyright = u'2014, Martin Bo Kristensen Gr\u00F8nholdt'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -186,7 +186,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'StaticSiteGenerator.tex', 'Static Site Generator Documentation',
-   'Martin Bo Kristensen Grønholdt', 'manual'),
+   u'Martin Bo Kristensen Gr\u00F8nholdt', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,7 +216,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'staticsitegenerator', 'Static Site Generator Documentation',
-     ['Martin Bo Kristensen Grønholdt'], 1)
+     [u'Martin Bo Kristensen Gr\u00F8nholdt'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -230,7 +230,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'StaticSiteGenerator', 'Static Site Generator Documentation',
-   'Martin Bo Kristensen Grønholdt', 'StaticSiteGenerator', 'One line description of project.',
+   u'Martin Bo Kristensen Gr\u00F8nholdt', 'StaticSiteGenerator', 'One line description of project.',
    'Miscellaneous'),
 ]
 

@@ -26,14 +26,14 @@ configs = {}
 # Instantiate Markdown extensions
 figure = FigureExtension(configs=configs)
 
-#Extra extensions
-#Meta-data extension
-#Table of Contents extension
-#Figure extension
-MARKDOWN_EXTENSIONS = [	'markdown.extensions.extra', 
-						'markdown.extensions.meta', 
-						'markdown.extensions.toc',
-						figure]
+# Extra extensions
+# Meta-data extension
+# Table of Contents extension
+# Figure extension
+MARKDOWN_EXTENSIONS = [	'markdown.extensions.extra',
+                        'markdown.extensions.meta',
+                        'markdown.extensions.toc',
+                        figure]
 '''Markdown extension to use.'''
 
 DEBUG = False
@@ -155,7 +155,7 @@ def process_content(path, context):
     for filename in content_files:
         try:
             # Open it
-            with codecs.open(filename,  encoding='utf-8') as markdown_file:
+            with codecs.open(filename, encoding='utf-8') as markdown_file:
                 logger.info("Reading: " + filename)
                 # Create an instance of the Markdown processor
                 md = markdown.Markdown(extensions=MARKDOWN_EXTENSIONS,

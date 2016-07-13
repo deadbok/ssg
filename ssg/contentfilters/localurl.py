@@ -5,7 +5,7 @@ LocalURL
 Translates occurences of the string '$LOCALURL' with the URL of current
 content.
 If you use this plug in, **every "$" character in the content must be written
-"$"**, as LocalURL swallows one.
+"$$"**, as LocalURL swallows one.
 '''
 import os
 from string import Template
@@ -40,7 +40,7 @@ class LocalURL(contentfilter.ContentFilterBase):
         except KeyError as exception:
             logger.error('Could not find key ' + str(exception) + '.')
             logger.error('Maybe a missing $ character.')
-            raise exception 
+            raise exception
 
 # Add LocalURL to list of parsers
 contentfilter.CONTENTFILTERS.append(LocalURL())
