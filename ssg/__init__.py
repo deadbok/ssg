@@ -70,7 +70,7 @@ def init(debug=False, root=None):
 def _get_url(metadata):
     '''Get the final URL of the rendered html on the site.
 
-    :param metadata: Meta data to use. *file* key must be present.
+    :param metadata: Meta data to use. *src_file* key must be present.
     :type metadata: dict
     '''
     logger.debug('Generating URL from: ' + str(metadata))
@@ -105,7 +105,7 @@ def _new_metadata(filename, md):
     metadata = dict()
     metadata['src_file'] = filename
     # Create output file path and name
-        # Get path starting from content
+    # Get path starting from content
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
     output_filename = os.path.relpath(metadata['src_file'],
@@ -189,16 +189,17 @@ def sanity_checks(context):
     logger.debug("Running sanity checks on input.")
     for content in context.contents:
         # Check if template is set
-        if not 'template' in content['metadata']:
-            raise ContentParserError('Missing template in: '
-                                     + content['metadata']['src_file'])
-        if not 'title' in content['metadata']:
-            raise ContentParserError('Missing title in: '
-                                     + content['metadata']['src_file'])
+        if 'template' not in content['metadata']:
+            raise ContentParserError('Missing template in: ' +
+                                     content['metadata']['src_file'])
+        if 'title' not in content['metadata']:
+            raise ContentParserError('Missing title in: ' +
+                                     content['metadata']['src_file'])
 
 
 def apply_templates(path, context):
-    '''Apply jinja2 templates to content, and write the files.
+    '''
+    Apply jinja2 templates to content, and write the files.
 
     :param path: Path to templates
     :type path: string
@@ -227,13 +228,15 @@ def apply_templates(path, context):
             else:
                 local_context = {'context': context, 'content': content}
             # Render template
-            logger.info('Rendering template "' + template
-                         + '" with "' + content['metadata']['src_file'] + '"')
+            if content['metadata']['src_file'] != '':
+                logger.info("Rendering " + content['metadata']['src_file'])
+            logger.debug('Rendering template "' + template +
+                         '" with "' + content['metadata']['src_file'] + '"')
             content['html'] = tpl.render(local_context)
     except TemplateSyntaxError as exception:
         logger.error('Jinja2 syntax error:')
-        logger.error('In ' + exception.name + ' line number :'
-                     + str(exception.lineno))
+        logger.error('In ' + exception.name + ' line number :' +
+                     str(exception.lineno))
         logger.error(exception.filename)
         raise exception
     except TemplateError as exception:
@@ -252,7 +255,7 @@ def create_empty_site(path=None):
     :type path: string
     '''
     # Defaults to current directory
-    if path == None:
+    if path is None:
         path = os.getcwd()
     # Write a shiny new configuration file
     write_config(path)

@@ -13,6 +13,18 @@ from ssg.settings import SETTINGS
 from ssg.tools import get_files, get_dirs, die
 
 
+def _create_dir(path):
+    '''
+    Create a directory (and direcotries below) if they are not already there.
+
+    :param path: Path of the directory to create
+    :type path: string
+    '''
+    if not os.path.isdir(path):
+        logger.debug('Creating path: ' + path)
+        os.makedirs(path, mode=0o755)
+
+
 def _check_updated(context):
     '''
     Check which files need updating.
@@ -80,8 +92,8 @@ def _check_updated(context):
         # If file has no source it is generated
         if content['metadata']['src_file'] == '':
             if content_upd:
-                logger.debug('"' + content['metadata']['title']
-                             + '" needs updating.')
+                logger.debug('"' + content['metadata']['title'] +
+                             '" needs updating.')
                 content['metadata']['updated'] = True
             else:
                 content['metadata']['updated'] = False
@@ -97,18 +109,15 @@ def file_writer(content):
     '''
     # Generate ouput file name if none is set
     if content['metadata']['dst_file'] == '':
-        logger.error('No destination file name for: '
-                     + content['metadata']['title'])
+        logger.error('No destination file name for: ' +
+                     content['metadata']['title'])
         die()
     else:
         output_filename = content['metadata']['dst_file']
     # Get the path of the output
     output_path, _ = os.path.split(output_filename)
     logger.debug('Saving to path: ' + output_path)
-    # Create directory if it does not exist
-    if not os.path.isdir(output_path):
-        logger.debug('Creating path: ' + output_path)
-        os.makedirs(output_path, mode=0o755)
+    _create_dir(output_path)
 
     with open(output_filename, 'w', encoding='utf8') as output_file:
         logger.info('Saving to: ' + output_filename)
@@ -145,13 +154,10 @@ def copy_file(src, dst, update=True):
         # Make sure the target is updated
         dst_mtime = 0
     # Check if source is newer that destination
-    if (src_mtime > dst_mtime) or (update == False):
+    if (src_mtime > dst_mtime) or (update is False):
         # Add destination path
         output_path = os.path.join(dst, relpath)
-        # Create directory if it does not exist
-        if not os.path.isdir(output_path):
-            logger.debug('Creating path: ' + output_path)
-            os.makedirs(output_path, mode=0o755)
+        _create_dir(output_path)
         logger.info('Copying "' + src + '" to "' + output_path + '"')
         return shutil.copy2(src, output_path)
     else:
@@ -202,15 +208,15 @@ def cleanup_destination(output_path, written_files):
                                        SETTINGS['OUTPUTDIR'])
             reldir = os.path.relpath(dst_dir, output_path)
             content_path = os.path.join(SETTINGS['ROOTDIR'],
-                                       SETTINGS['CONTENTDIR'],
-                                       reldir)
+                                        SETTINGS['CONTENTDIR'],
+                                        reldir)
             if not os.path.isdir(content_path):
                 dirlist.append(dst_dir)
     # Delete directories backwards to make sure subdirectories go first
     for output_dir in reversed(dirlist):
         # Do not try to delete the output directory
         if not output_dir == os.path.join(SETTINGS['ROOTDIR'],
-                                   SETTINGS['OUTPUTDIR']):
+                                          SETTINGS['OUTPUTDIR']):
             logger.info('Deleting directory: ' + output_dir)
             os.rmdir(output_dir)
 
@@ -259,7 +265,7 @@ def write(input_path, context, update=True):
             else:
                 logger.debug('Skipping: ' + filename)
         # Skip duplicates of files created by ssg.
-        elif not filename in written_files:
+        elif filename not in written_files:
             # Write other files.
             written_files.append(copy_file(filename, output_path, update))
         else:
