@@ -30,7 +30,7 @@ figure = FigureExtension(configs=configs)
 # Meta-data extension
 # Table of Contents extension
 # Figure extension
-MARKDOWN_EXTENSIONS = [	'markdown.extensions.extra',
+MARKDOWN_EXTENSIONS = [ 'markdown.extensions.extra',
                         'markdown.extensions.meta',
                         'markdown.extensions.toc',
                         figure]
@@ -175,7 +175,10 @@ def process_content(path, context):
                 # Append the content to the list
                 context.contents.append(content)
         except Exception as exception:
-            logger.exception('Exception reading file: ' + filename)
+            if DEBUG:
+                logger.exception('Exception reading file: ' + filename)
+            else:
+                logger.error('Exception reading file: ' + filename)
             raise exception
     return(context)
 
