@@ -49,5 +49,5 @@ setup(
     description="SSG is a program to generate static websites.",
     license="GPL",
     keywords="static web www ",
-    url="http://github.com/deadbok/SSG",
+    url="http://github.com/deadbok/ssg",
 )

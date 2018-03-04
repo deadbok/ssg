@@ -27,6 +27,8 @@ html
 context
     Local context used by Jinja2, when rendering the page.
 '''
+
+
 class Context(object):
     '''
     Class that represent the global context of the site.

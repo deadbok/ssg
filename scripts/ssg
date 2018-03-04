@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 '''
 The main Static Site generator executable is called ```ssg```. This is a Python
 command line program.

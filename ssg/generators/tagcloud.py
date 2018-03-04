@@ -37,12 +37,11 @@ class TagCloudGenerator(generator.GeneratorBase):
         generator.GeneratorBase.__init__(self)
 
     def _create_index_metadata(self):
-        '''Create metadata and data structure for the index.
+        '''Create metadata and data structure for the tag cloud.
         '''
-        # Create meta data for index
+        # Create meta data for tag index
         # Create a dictionary for metadata
         metadata = dict()
-        # Omit page number from first index file
         metadata['src_file'] = ''
         metadata['dst_file'] = os.path.join(SETTINGS['ROOTDIR'],
                                             SETTINGS['OUTPUTDIR'])
@@ -68,8 +67,8 @@ class TagCloudGenerator(generator.GeneratorBase):
         :param posts: List of posts in the index.
         :type posts: list
         '''
-        logger.debug('Creating categories page for:' + tag)
-        # Generate index filename from tag
+        logger.debug('Creating tag cloud page for:' + tag)
+        # Generate tag index filename from tag
         dst_file = tag.replace(' ', '_')
         dst_file = '/tag_' + dst_file.replace('/', '-') + '_index.html'
         # Create meta data

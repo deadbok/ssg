@@ -95,11 +95,11 @@ class BlogIndexGenerator(generator.GeneratorBase):
         template is set.
         '''
         for content in context.contents:
-        # Check if meta data has 'type'
+            # Check if meta data has 'type'
             if 'type' in content['metadata'].keys():
-            # Check if type is 'post'
+                # Check if type is 'post'
                 if content['metadata']['type'] == 'post':
-                # Check if template is set
+                    # Check if template is set
                     if 'template' not in content['metadata'].keys():
                         # Set template to 'post'
                         content['metadata']['template'] = 'post'
@@ -129,7 +129,8 @@ class BlogIndexGenerator(generator.GeneratorBase):
                 if content['metadata']['template'] == 'post':
                     if not ishidden(content['metadata']):
                         n_pages += 1
-            # TODO: Check for rounding error when result is something like x,1-4
+            # TODO: Check for rounding error when result is something
+            # like x,1-4
             n_pages = int(n_pages / SETTINGS['POSTSPERINDEX'])
             logger.debug('Index spans ' + str(n_pages) + ' pages.')
             # Keep track of the page number
@@ -139,13 +140,12 @@ class BlogIndexGenerator(generator.GeneratorBase):
             # Run trough all content
             for content in context.contents:
                 # Only do posts
-                if (content['metadata']['template'] == 'post') and (not ishidden(content['metadata'])):
+                if ((content['metadata']['template'] == 'post') and
+                    (not ishidden(content['metadata']))):
                     # Split by 'POSTSPERINDEX', and create indices
                     if len(posts) <= SETTINGS['POSTSPERINDEX']:
-                        logger.debug('Adding post to page '
-                                     + str(page)
-                                     + ' '
-                                     + content['metadata']['title'])
+                        logger.debug('Adding post to page ' + str(page) + ' ' +
+                                     content['metadata']['title'])
                         posts.append(content)
                     else:
                         self._create_index(context,
@@ -160,12 +160,12 @@ class BlogIndexGenerator(generator.GeneratorBase):
                         posts = list()
                         posts.append(content)
                 else:
-                    logger.debug('Skipping '
-                                 + content['metadata']['src_file'])
+                    logger.debug('Skipping ' +
+                                 content['metadata']['src_file'])
             # Get any remaining posts
             if len(posts) > 0:
-                logger.debug('Last page is ' + str(len(posts))
-                             + 'posts long.')
+                logger.debug('Last page is ' + str(len(posts)) +
+                             'posts long.')
                 self._create_index(context,
                                    page,
                                    n_pages,
@@ -180,7 +180,8 @@ class BlogIndexGenerator(generator.GeneratorBase):
             # Run trough all content
             for content in context.contents:
                 # Only do posts
-                if (content['metadata']['template'] == 'post') and (not ishidden(content['metadata'])):
+                if ((content['metadata']['template'] == 'post') and
+                    (not ishidden(content['metadata']))):
                     logger.debug('Adding post to index page.')
                     posts.append(content)
 
