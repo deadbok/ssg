@@ -1,11 +1,17 @@
-'''
+"""
 Main routines for the Static Site Generator.
-'''
+
+Version 0.0.5:
+ 
+* Parse metadata using string templates.
+
+"""
 
 import logging
 import os
 import codecs
 import markdown
+from string import Template
 from ssg import writer
 from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
 from jinja2 import TemplateError
@@ -21,7 +27,7 @@ from ssg import contentfilters
 from ssg.markdownext.figure import FigureExtension
 
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 configs = {}
 # Instantiate Markdown extensions
 figure = FigureExtension(configs=configs)
@@ -30,30 +36,31 @@ figure = FigureExtension(configs=configs)
 # Meta-data extension
 # Table of Contents extension
 # Figure extension
-MARKDOWN_EXTENSIONS = [ 'markdown.extensions.extra',
-                        'markdown.extensions.meta',
-                        'markdown.extensions.toc',
-                        figure]
-'''Markdown extension to use.'''
+MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',
+                       'markdown.extensions.meta',
+                       'markdown.extensions.toc',
+                       figure]
+"""Markdown extension to use."""
 
 DEBUG = False
 
 
 class ContentParserError(RuntimeError):
-    '''
+    """
     The client has received an unexpected response
-    '''
+    """
     pass
 
 
 def init(debug=False, root=None):
-    '''Initialise ssg
+    """
+    Initialise ssg
 
     :param debug: True enables debugging to console
     :type debug: bool
     :param root: Root directory of the site
     :type root: string
-    '''
+    """
     global DEBUG
     # Init logging to file
     init_file_log(logging.DEBUG)
@@ -67,40 +74,57 @@ def init(debug=False, root=None):
     settings.init(root)
 
 
-def _get_url(metadata):
-    '''Get the final URL of the rendered html on the site.
+def _get_html_file_name(metadata):
+    """
+    Return the html file name from the source file name in the metadata.
 
     :param metadata: Meta data to use. *src_file* key must be present.
     :type metadata: dict
-    '''
-    logger.debug('Generating URL from: ' + str(metadata))
+    :return: HTML file name.
+    """
+    html_file_name = os.path.basename(metadata['src_file'])
+    # Strip old extension
+    html_file_name, _ = os.path.splitext(html_file_name)
+    # Add new
+    html_file_name += '.html'
+    return html_file_name
+
+
+def _get_url(metadata, file_name):
+    """
+    Get the final URL of the rendered html on the site.
+
+    :param metadata: Meta data to use. *src_file* key must be present.
+    :type metadata: dict
+    """
+    logger.debug('Generating URL from: ' + str(metadata) + ' + ' + file_name)
     # Start with the site URL
-    url = SETTINGS['SITEURL'] + '/'
+    site_url = SETTINGS['SITEURL'] + '/'
     # Get path starting from content
     content_path = os.path.join(SETTINGS['ROOTDIR'],
                                 SETTINGS['CONTENTDIR'])
-    output_filename = os.path.relpath(metadata['src_file'],
-                                      content_path)
-    # Strip old extension
-    output_filename, _ = os.path.splitext(output_filename)
-    # Add new
-    output_filename += '.html'
+    # Get relative path to source file directory.
+    source_relative_path = os.path.dirname(
+        os.path.relpath(metadata['src_file'], content_path)
+    )
+
     # Add the filename to the URL
-    url += output_filename
+    url = os.path.join(site_url, source_relative_path, file_name)
     logger.debug('URL: ' + url)
     return url
 
 
 def _new_metadata(filename, md):
-    '''
+    """
     Create new meta data from a Markdown file.
 
     :param filename: The full path of the source Markdown file.
     :type filename: string
     :param md: An instance of the Markdown preprocessor
     :type md: markdown.Markdown
-    '''
+    """
 
+    logger.debug("Creating new metadata.")
     # Create a dictionary for meta data
     metadata = dict()
     metadata['src_file'] = filename
@@ -120,7 +144,10 @@ def _new_metadata(filename, md):
                                    output_filename)
     # Save output file name
     metadata['dst_file'] = output_filename
-    metadata['URL'] = _get_url(metadata)
+    metadata['URL'] = _get_url(
+        metadata,
+        _get_html_file_name(metadata)
+    )
     # Check for meta data
     if len(md.Meta) == 0:
         raise ContentParserError('No meta data found.')
@@ -128,17 +155,27 @@ def _new_metadata(filename, md):
     for key, item in md.Meta.items():
         item = ''.join(item)
         # Add meta data from the meta data markdown extension
+        try:
+            tmpl = Template(item)
+            item = tmpl.substitute(LOCALURL=_get_url(metadata, ''))
+        except KeyError as exception:
+            logger.error('Could not find key ' + str(exception) + '.')
+            logger.error('Maybe a missing $ character.')
+            raise exception
+
         metadata[key] = item
     # Get python datetime from the one in the content meta data
     if 'date' in metadata.keys():
         metadata['date'] = get_datetime(metadata['date'])
     # Run through extra meta data parsers.
     metadata.update(parsers_run(filename))
+    logger.debug('Metadata: ' + str(metadata))
     return metadata
 
 
 def process_content(path, context):
-    '''Process all contents, converting it to HTML.
+    """
+    Process all contents, converting it to HTML.
 
     *Metadata need to start at the first line of the file, and to have ONE
     newline before the content.*
@@ -146,7 +183,7 @@ def process_content(path, context):
     :param path: Where the content files are at.
     :type path: string
     :returns: A list of contexts
-    '''
+    """
     logger.info("Processing content.")
     # Get list of files
     content_files = get_files(path, '.md')
@@ -184,11 +221,11 @@ def process_content(path, context):
 
 
 def sanity_checks(context):
-    '''Checks to see if the templates and content actually parses.
+    """Checks to see if the templates and content actually parses.
 
     :param context:
     :type context:
-    '''
+    """
     logger.debug("Running sanity checks on input.")
     for content in context.contents:
         # Check if template is set
@@ -201,7 +238,7 @@ def sanity_checks(context):
 
 
 def apply_templates(path, context):
-    '''
+    """
     Apply jinja2 templates to content, and write the files.
 
     :param path: Path to templates
@@ -209,7 +246,7 @@ def apply_templates(path, context):
     :param contents: A list of metadata, content tuples
     :type contents: list
     :returns: List of contexts
-    '''
+    """
     logger.info('Applying templates.')
     env = Environment(loader=FileSystemLoader(path))
     # Run generator extensions
@@ -251,12 +288,12 @@ def apply_templates(path, context):
 
 
 def create_empty_site(path=None):
-    '''
+    """
     Create the skeleton and config file for a new site.
 
     :param path: Root path of the new site. Default is current directory.
     :type path: string
-    '''
+    """
     # Defaults to current directory
     if path is None:
         path = os.getcwd()
@@ -270,11 +307,11 @@ def create_empty_site(path=None):
 
 
 def run(update):
-    '''Process everything and create output files.
+    """Process everything and create output files.
 
     :param update: Only write updated files.
     :type update: bool
-    '''
+    """
     global CONTEXT, DEBUG
     # Add settings to global context
     CONTEXT.settings = SETTINGS
@@ -301,7 +338,7 @@ def run(update):
 
 
 def close():
-    '''
+    """
     Perform cleanup.
-    '''
+    """
     close_log()

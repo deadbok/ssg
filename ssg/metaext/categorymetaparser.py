@@ -1,4 +1,4 @@
-'''
+"""
 CategoryMetaParser
 ==================
 
@@ -20,7 +20,7 @@ category
 
 :since: 26/04/2014
 :author: oblivion
-'''
+"""
 import os
 from ssg.log import logger
 from ssg.settings import SETTINGS
@@ -29,18 +29,20 @@ from ssg.tools import get_files
 
 
 class CategoryMetaParser(metadata.MetaParserBase):
-    '''Get category meta data from directory names.'''
+    """Get category meta data from directory names."""
+
     def __init__(self):
-        '''Constructor.'''
+        """Constructor."""
         metadata.MetaParserBase.__init__(self)
 
     def parse(self, path):
-        '''Parse category from path and return meta data in a dictionary.
+        """
+        Parse category from path and return meta data in a dictionary.
 
         :param path: Path to content.
         :type path: string
         :returns: dict with meta data.
-        '''
+        """
         logger.debug("Parsing category.")
         # Get content directory
         content_dir, _ = os.path.split(path)
@@ -79,6 +81,7 @@ class CategoryMetaParser(metadata.MetaParserBase):
             else:
                 result['category'] = category
             return result
+
 
 # Add CategoriMetaParser to list of parsers
 metadata.META_PARSERS.append(CategoryMetaParser())
